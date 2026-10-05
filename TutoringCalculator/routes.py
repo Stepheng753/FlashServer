@@ -224,6 +224,27 @@ def run_calc_orchestration():
     try:
         # 1. Copy Template
         copy_res = copy_template_sheet(creds, start_date, end_date)
+        if copy_res.get("status") == "already_approved" or copy_res.get("already_approved"):
+            year_folder_id = copy_res.get('year_folder_id')
+            year_folder_url = f"https://drive.google.com/drive/folders/{year_folder_id}" if year_folder_id else None
+            pay_folder_url = f"https://drive.google.com/drive/folders/{PAY_PARENT_FOLDER_ID}" if PAY_PARENT_FOLDER_ID else None
+            return jsonify({
+                "status": "skipped",
+                "already_approved": True,
+                "message": copy_res.get("message", f"An approved sheet already exists for {start_date} - {end_date}. Calculation skipped."),
+                "sheet_id": copy_res.get("sheet_id"),
+                "sheet_url": copy_res.get("sheet_url"),
+                "sheet_title": copy_res.get("title"),
+                "start_date": start_date,
+                "end_date": end_date,
+                "year_folder_id": year_folder_id,
+                "year_folder_url": year_folder_url,
+                "pay_parent_folder_url": pay_folder_url,
+                "send_email": send_email,
+                "email_status": "skipped",
+                "email_error": None
+            }), 200
+
         sheet_id = copy_res['sheet_id']
         sheet_url = copy_res['sheet_url']
         year_folder_id = copy_res.get('year_folder_id')

@@ -296,6 +296,62 @@ class TestTutoringCalculator(unittest.TestCase):
             self.assertEqual(data['email_status'], 'skipped')
             mock_email.assert_not_called()
 
+    def test_copy_template_sheet_skips_if_approved_exists(self):
+        """Verifies copy_template_sheet returns already_approved and does not copy template if approved sheet exists."""
+        from TutoringCalculator.apis.drive_sheets_api import copy_template_sheet
+        mock_creds = MagicMock()
+        mock_drive_svc = MagicMock()
+        mock_sheets_svc = MagicMock()
+
+        approved_file = {'id': 'approved_sheet_id', 'name': '09.14.26 - 09.20.26'}
+
+        with patch('TutoringCalculator.apis.drive_sheets_api.get_drive_service', return_value=mock_drive_svc), \
+             patch('TutoringCalculator.apis.drive_sheets_api.get_sheets_service', return_value=mock_sheets_svc), \
+             patch('TutoringCalculator.apis.drive_sheets_api.get_or_create_year_folder', return_value='folder_123'):
+
+            mock_drive_svc.files().list().execute.return_value = {
+                'files': [approved_file]
+            }
+
+            res = copy_template_sheet(mock_creds, "09.14.26", "09.20.26")
+            self.assertEqual(res['status'], 'already_approved')
+            self.assertTrue(res['already_approved'])
+            self.assertEqual(res['sheet_id'], 'approved_sheet_id')
+            self.assertEqual(res['title'], '09.14.26 - 09.20.26')
+            # Verify copy was never called
+            mock_drive_svc.files().copy.assert_not_called()
+
+    def test_run_calc_orchestration_skips_if_already_approved(self):
+        """Verifies run_calc_orchestration gracefully returns status='skipped' if sheet is already approved."""
+        from flask import Flask
+        from TutoringCalculator.routes import run_calc_orchestration
+
+        app = Flask(__name__)
+        mock_creds = MagicMock()
+
+        with app.test_request_context('/tutoring/run-calc', method='POST'), \
+             patch('TutoringCalculator.routes.require_google_creds', return_value=(mock_creds, None, None)), \
+             patch('TutoringCalculator.routes.copy_template_sheet', return_value={
+                 'status': 'already_approved',
+                 'already_approved': True,
+                 'sheet_id': 'appr_1',
+                 'sheet_url': 'http://sheet',
+                 'title': '09.14.26 - 09.20.26',
+                 'year_folder_id': 'y1'
+             }), \
+             patch('TutoringCalculator.routes.calculate_tutoring_hours') as mock_calc, \
+             patch('TutoringCalculator.routes.send_calculation_email') as mock_email:
+
+            resp, code = run_calc_orchestration()
+            self.assertEqual(code, 200)
+            data = resp.get_json()
+            self.assertEqual(data['status'], 'skipped')
+            self.assertTrue(data['already_approved'])
+            self.assertEqual(data['sheet_id'], 'appr_1')
+            mock_calc.assert_not_called()
+            mock_email.assert_not_called()
+
+
 
     def test_tutoring_api_routes_registered(self):
         """Verifies that /api/tutoring/... endpoints are properly registered on the blueprint."""

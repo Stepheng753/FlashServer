@@ -113,6 +113,30 @@ def copy_template_sheet(creds, start_date_str, end_date_str):
     new_file_name = f"{start_fmt} - {end_fmt} CALCULATED"
     year_folder_id = get_or_create_year_folder(drive_service, year_str)
 
+    # Check if an approved sheet (without 'CALCULATED') already exists for this week
+    base_name = f"{start_fmt} - {end_fmt}"
+    query = (
+        f"name contains '{base_name}' and "
+        f"mimeType='application/vnd.google-apps.spreadsheet' and "
+        f"trashed=false and "
+        f"'{year_folder_id}' in parents"
+    )
+    res = drive_service.files().list(q=query, spaces='drive', fields='files(id, name)').execute()
+    existing_sheets = res.get('files', [])
+    approved_sheets = [f for f in existing_sheets if 'CALCULATED' not in f.get('name', '').upper()]
+
+    if approved_sheets:
+        approved_sheet = approved_sheets[0]
+        return {
+            "status": "already_approved",
+            "already_approved": True,
+            "message": f"Approved sheet '{approved_sheet.get('name')}' already exists for billing week {base_name}. Calculation skipped to preserve manual approval.",
+            "sheet_id": approved_sheet.get('id'),
+            "sheet_url": f"https://docs.google.com/spreadsheets/d/{approved_sheet.get('id')}/edit",
+            "title": approved_sheet.get('name'),
+            "year_folder_id": year_folder_id
+        }
+
     # If an existing file with the same name exists, delete it first to avoid duplicates
     existing = find_file_in_folder(drive_service, new_file_name, year_folder_id)
     if existing:

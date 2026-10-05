@@ -1242,6 +1242,9 @@
 
           openModal('modal-calc');
           loadStatus();
+        } else if (res.ok && data.already_approved) {
+          alert(`Calculation Skipped: ${data.message || 'An approved sheet already exists for this week.'}`);
+          loadStatus();
         } else {
           alert(`Calculation Error: ${data.message || 'Unknown error occurred'}`);
         }
