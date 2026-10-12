@@ -231,8 +231,42 @@
       font-weight: 800;
       font-family: var(--font-mono);
       letter-spacing: -0.04em;
-      margin: 6px 0 14px 0;
+      margin: 0;
       line-height: 1.1;
+    }
+
+    .net-worth-hero-value-wrap {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 12px;
+      margin: 6px 0 14px 0;
+      flex-wrap: wrap;
+    }
+
+    .net-worth-change-pill {
+      font-size: 1.15rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      letter-spacing: -0.01em;
+      display: inline-flex;
+      align-items: center;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0;
+    }
+
+    .net-worth-change-pill.positive {
+      color: #10b981;
+    }
+
+    .net-worth-change-pill.negative {
+      color: #ef4444;
+    }
+
+    .net-worth-change-pill.neutral {
+      color: var(--text-muted);
     }
 
     .net-worth-hero-meta {
@@ -709,6 +743,35 @@
 
     .acct-balance-row {
       margin: 14px 0 10px 0;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .acct-change-pill {
+      font-size: 0.88rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      letter-spacing: -0.01em;
+      display: inline-flex;
+      align-items: center;
+      background: transparent !important;
+      border: none !important;
+      padding: 0;
+    }
+
+    .acct-change-pill.positive {
+      color: #10b981;
+    }
+
+    .acct-change-pill.negative {
+      color: #ef4444;
+    }
+
+    .acct-change-pill.neutral {
+      color: var(--text-muted);
     }
 
     .acct-bal {
@@ -1773,7 +1836,10 @@
       <div class="net-worth-hero-title">
         <span>Total Estimated Net Worth</span>
       </div>
-      <div class="net-worth-hero-value" id="kpi-net-worth">--</div>
+      <div class="net-worth-hero-value-wrap">
+        <div class="net-worth-hero-value" id="kpi-net-worth">--</div>
+        <span id="kpi-net-worth-change" class="net-worth-change-pill" style="display: none;" title="Net worth change since last sync"></span>
+      </div>
       <div class="net-worth-hero-meta">
         <span>Assets: <strong id="kpi-hero-total-assets" style="color: var(--positive);">$0.00</strong></span>
         <span style="opacity: 0.4;">•</span>
@@ -2585,6 +2651,7 @@
       loadBudgetSummary();
       loadHistoryChart(currentTimeframe);
       checkSettingsStatus();
+      syncAccounts(); // Automatically sync on load of finance page
     });
 
     // Formatting utilities
@@ -2597,7 +2664,7 @@
         maximumFractionDigits: 2
       });
       if (val < 0) return '-' + formatted;
-      if (showSign && val > 0) return '+' + formatted;
+      if (showSign) return '+' + formatted;
       return formatted;
     }
 
@@ -2613,6 +2680,17 @@
         const nwElem = document.getElementById('kpi-net-worth');
         nwElem.innerText = formatCurrency(data.net_worth);
         nwElem.className = `net-worth-hero-value ${data.net_worth >= 0 ? 'positive' : 'negative'}`;
+
+        const nwChangeElem = document.getElementById('kpi-net-worth-change');
+        if (nwChangeElem && data.net_worth_change !== undefined && data.net_worth_change !== null) {
+          const nwChg = parseFloat(data.net_worth_change) || 0;
+          let nwChgClass = 'neutral';
+          if (nwChg > 0) nwChgClass = 'positive';
+          else if (nwChg < 0) nwChgClass = 'negative';
+          nwChangeElem.className = `net-worth-change-pill ${nwChgClass}`;
+          nwChangeElem.innerText = formatCurrency(nwChg, true);
+          nwChangeElem.style.display = 'inline-flex';
+        }
 
         // Sub-metrics on Hero Card
         document.getElementById('kpi-hero-total-assets').innerText = formatCurrency(data.total_assets);
@@ -3192,6 +3270,16 @@
       const displayBal = formatCurrency(acc.balance);
       const syncStatus = getAccountSyncStatus(acc);
 
+      let changeHtml = '';
+      if (acc.balance_change !== undefined && acc.balance_change !== null) {
+        const chgVal = parseFloat(acc.balance_change) || 0;
+        let chgClass = 'neutral';
+        if (chgVal > 0) chgClass = 'positive';
+        else if (chgVal < 0) chgClass = 'negative';
+        const formattedChg = formatCurrency(chgVal, true);
+        changeHtml = `<span class="acct-change-pill ${chgClass}" title="Change since last sync: ${formattedChg}">${formattedChg}</span>`;
+      }
+
       let typeBadgeClass = 'badge-savings';
       let typeBadgeLabel = 'Cash';
       const typeLower = (acc.account_type || '').toLowerCase();
@@ -3238,6 +3326,7 @@
 
             <div class="acct-balance-row">
               <div class="acct-bal ${balClass}">${displayBal}</div>
+              ${changeHtml}
             </div>
 
             <div class="acct-meta-list">

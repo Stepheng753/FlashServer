@@ -17,7 +17,8 @@ from .db import (
     get_accounts,
     upsert_account,
     record_snapshot,
-    deduplicate_database_accounts
+    deduplicate_database_accounts,
+    get_summary
 )
 
 
@@ -412,16 +413,15 @@ def sync_simplefin_accounts() -> dict:
                 is_fresh = True  # New account discovered
             elif not prev_synced_at:
                 is_fresh = True  # First time getting bank_api_polled_at
-            elif str(prev_synced_at).strip() != str(acct_synced_at).strip():
-                is_fresh = True  # Upstream bank poll timestamp changed
-            elif prev_balance is not None and abs(balance - prev_balance) > 0.001:
-                is_fresh = True  # Balance updated even if timestamp identical
+            # Check if balance changed
+            has_balance_change = False
+            bal_diff = 0.0
+            if prev_balance is not None and abs(balance - prev_balance) > 0.001:
+                has_balance_change = True
+                bal_diff = round(balance - prev_balance, 2)
 
-            if is_fresh:
-                refreshed_count += 1
-
-            upsert_account({
-                "id": target_id,
+            sync_details.append({
+                "account_id": target_id,
                 "institution": final_inst,
                 "name": final_name,
                 "account_number_mask": mask,
@@ -436,27 +436,75 @@ def sync_simplefin_accounts() -> dict:
                 "is_asset": is_asset,
                 "is_manual": 0 if matched is None else matched.get("is_manual", 0),
                 "last_synced": acct_synced_at,
-                "simplefin_id": sf_id
-            })
-
-            sync_details.append({
-                "account_id": target_id,
-                "institution": final_inst,
-                "name": final_name,
-                "balance": balance,
-                "currency": currency,
+                "simplefin_id": sf_id,
                 "bank_api_polled_at": acct_synced_at,
                 "prev_polled_at": prev_synced_at,
+                "prev_balance": prev_balance,
                 "is_fresh": is_fresh,
+                "has_balance_change": has_balance_change,
+                "bal_diff": bal_diff,
                 "bridge_pull_time": now_iso,
-                "simplefin_id": sf_id,
                 "matched": matched is not None
             })
 
         total_checked = len(sf_accounts)
+        any_account_changed = any(d["has_balance_change"] for d in sync_details)
+
+        # Upsert accounts to DB
+        # Rule: If 0 accounts changed upstream, preserve existing balance_change (do not set +$0.00 on everything)
+        # If at least 1 account changed, update changed accounts with their difference and unchanged accounts with 0.0
+        for item in sync_details:
+            acct_payload = {
+                "id": item["account_id"],
+                "institution": item["institution"],
+                "name": item["name"],
+                "account_number_mask": item["account_number_mask"],
+                "account_type": item["account_type"],
+                "balance": item["balance"],
+                "currency": item["currency"],
+                "apy_interest": item["apy_interest"],
+                "rewards_status": item["rewards_status"],
+                "credit_limit": item["credit_limit"],
+                "vested_balance": item["vested_balance"],
+                "holdings_summary": item["holdings_summary"],
+                "is_asset": item["is_asset"],
+                "is_manual": item["is_manual"],
+                "last_synced": item["last_synced"],
+                "simplefin_id": item["simplefin_id"]
+            }
+
+            if any_account_changed:
+                if item["has_balance_change"]:
+                    acct_payload["balance_change"] = item["bal_diff"]
+                    acct_payload["prev_balance"] = item["prev_balance"]
+                    acct_payload["balance_change_at"] = now_iso
+                else:
+                    acct_payload["balance_change"] = 0.0
+                    acct_payload["prev_balance"] = item["balance"]
+                    acct_payload["balance_change_at"] = now_iso
+            else:
+                # 0 accounts changed: preserve existing values via NULL in upsert
+                acct_payload["balance_change"] = None
+                acct_payload["prev_balance"] = None
+                acct_payload["balance_change_at"] = None
+
+            upsert_account(acct_payload)
 
         # Record a fresh historical snapshot
-        snapshot_id = record_snapshot(note=f"SimpleFIN sync ({refreshed_count} refreshed, {total_checked} checked)")
+        # Compute net worth change if accounts changed; otherwise preserve previous
+        net_worth_change = None
+        if any_account_changed:
+            old_summary = get_summary()
+            old_nw = float(old_summary.get("net_worth") or 0.0)
+            # Re-fetch fresh summary after upsert
+            fresh_summary = get_summary()
+            new_nw = float(fresh_summary.get("net_worth") or 0.0)
+            net_worth_change = round(new_nw - old_nw, 2)
+
+        snapshot_id = record_snapshot(
+            note=f"SimpleFIN sync ({refreshed_count} refreshed, {total_checked} checked)",
+            net_worth_change=net_worth_change
+        )
         set_setting(SIMPLEFIN_LAST_SYNC_KEY, now_iso)
 
         if refreshed_count > 0:

@@ -114,6 +114,55 @@ def init_db():
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_budget_category ON budget_items(category, is_active);")
         conn.commit()
 
+        # Schema evolution: ensure balance_change, prev_balance, balance_change_at exist on accounts
+        cursor.execute("PRAGMA table_info(accounts);")
+        acct_cols = [r["name"] for r in cursor.fetchall()]
+        if "balance_change" not in acct_cols:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN balance_change REAL DEFAULT 0.0;")
+        if "prev_balance" not in acct_cols:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN prev_balance REAL DEFAULT NULL;")
+        if "balance_change_at" not in acct_cols:
+            cursor.execute("ALTER TABLE accounts ADD COLUMN balance_change_at TEXT DEFAULT '';")
+        conn.commit()
+
+        # Schema evolution: ensure net_worth_change exists on snapshots
+        cursor.execute("PRAGMA table_info(snapshots);")
+        snap_cols = [r["name"] for r in cursor.fetchall()]
+        if "net_worth_change" not in snap_cols:
+            cursor.execute("ALTER TABLE snapshots ADD COLUMN net_worth_change REAL DEFAULT 0.0;")
+        conn.commit()
+
+        # Populate initial baseline balance changes from snapshots if prev_balance is not set
+        try:
+            cursor.execute("SELECT id, balance FROM accounts WHERE prev_balance IS NULL;")
+            uninit_accounts = cursor.fetchall()
+            for u in uninit_accounts:
+                acct_id = u["id"]
+                curr_bal = float(u["balance"])
+                cursor.execute("""
+                    SELECT balance FROM account_snapshots
+                    WHERE account_id = ?
+                    ORDER BY id DESC LIMIT 2;
+                """, (acct_id,))
+                snaps = cursor.fetchall()
+                if len(snaps) >= 2:
+                    p_bal = float(snaps[1]["balance"])
+                    chg = round(curr_bal - p_bal, 2)
+                    cursor.execute("""
+                        UPDATE accounts
+                        SET prev_balance = ?, balance_change = ?
+                        WHERE id = ?;
+                    """, (p_bal, chg, acct_id))
+                else:
+                    cursor.execute("""
+                        UPDATE accounts
+                        SET prev_balance = ?, balance_change = 0.0
+                        WHERE id = ?;
+                    """, (curr_bal, acct_id))
+            conn.commit()
+        except Exception as e:
+            print(f"[Finance DB] Baseline balance initialization error: {e}")
+
         # Run automatic deduplication in case duplicate accounts were pulled
         try:
             deduplicate_database_accounts(conn)
@@ -162,8 +211,9 @@ def upsert_account(acc):
                 id, institution, name, account_number_mask, account_type,
                 balance, currency, apy_interest, rewards_status,
                 credit_limit, vested_balance, holdings_summary,
-                is_asset, is_manual, last_synced, created_at, simplefin_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                is_asset, is_manual, last_synced, created_at, simplefin_id,
+                balance_change, prev_balance, balance_change_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
                 institution = excluded.institution,
                 name = excluded.name,
@@ -178,7 +228,10 @@ def upsert_account(acc):
                 holdings_summary = COALESCE(excluded.holdings_summary, accounts.holdings_summary),
                 is_asset = excluded.is_asset,
                 last_synced = excluded.last_synced,
-                simplefin_id = COALESCE(excluded.simplefin_id, accounts.simplefin_id);
+                simplefin_id = COALESCE(excluded.simplefin_id, accounts.simplefin_id),
+                balance_change = COALESCE(excluded.balance_change, accounts.balance_change),
+                prev_balance = COALESCE(excluded.prev_balance, accounts.prev_balance),
+                balance_change_at = COALESCE(excluded.balance_change_at, accounts.balance_change_at);
         """, (
             acc["id"], acc["institution"], acc["name"], acc.get("account_number_mask"),
             acc["account_type"], float(acc["balance"]), acc.get("currency", "USD"),
@@ -186,7 +239,8 @@ def upsert_account(acc):
             float(acc.get("vested_balance", 0.0)), acc.get("holdings_summary"),
             int(acc.get("is_asset", 1)), int(acc.get("is_manual", 0)),
             acc.get("last_synced", now), acc.get("created_at", now),
-            acc.get("simplefin_id")
+            acc.get("simplefin_id"),
+            acc.get("balance_change"), acc.get("prev_balance"), acc.get("balance_change_at")
         ))
         conn.commit()
 
@@ -433,7 +487,7 @@ def deduplicate_database_accounts(conn=None):
     }
 
 
-def record_snapshot(note=""):
+def record_snapshot(note="", net_worth_change=None):
     """
     Computes current snapshot metrics across all accounts and stores in `snapshots`.
     Also records per-account snapshot records.
@@ -473,15 +527,26 @@ def record_snapshot(note=""):
 
     with get_connection() as conn:
         cursor = conn.cursor()
+
+        # If net_worth_change not explicitly provided, preserve previous or compute
+        if net_worth_change is None:
+            cursor.execute("SELECT net_worth_change FROM snapshots WHERE net_worth_change IS NOT NULL ORDER BY id DESC LIMIT 1;")
+            prev_row = cursor.fetchone()
+            if prev_row and prev_row["net_worth_change"] is not None:
+                net_worth_change = float(prev_row["net_worth_change"])
+            else:
+                net_worth_change = 0.0
+
         cursor.execute("""
             INSERT INTO snapshots (
                 timestamp, net_worth, total_assets, total_liabilities,
-                liquid_cash, investments, mortgage_debt, credit_debt, note
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+                liquid_cash, investments, mortgage_debt, credit_debt, note,
+                net_worth_change
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """, (
             now, round(net_worth, 2), round(total_assets, 2), round(total_liabilities, 2),
             round(liquid_cash, 2), round(investments, 2), round(mortgage_debt, 2),
-            round(credit_debt, 2), note or "Live sync snapshot"
+            round(credit_debt, 2), note or "Live sync snapshot", round(float(net_worth_change), 2)
         ))
         snapshot_id = cursor.lastrowid
 
@@ -653,8 +718,18 @@ def get_summary():
     if total_credit_limit > 0:
         credit_utilization = (abs(credit_debt) / total_credit_limit) * 100.0
 
+    # Get latest recorded net worth change
+    net_worth_change = 0.0
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT net_worth_change FROM snapshots WHERE net_worth_change IS NOT NULL ORDER BY id DESC LIMIT 1;")
+        row = cursor.fetchone()
+        if row and row["net_worth_change"] is not None:
+            net_worth_change = float(row["net_worth_change"])
+
     return {
         "net_worth": round(net_worth, 2),
+        "net_worth_change": round(net_worth_change, 2),
         "total_assets": round(total_assets, 2),
         "total_liabilities": round(total_liabilities, 2),
         "liquid_cash": round(liquid_cash, 2),

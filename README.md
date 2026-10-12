@@ -1,6 +1,8 @@
 <div align="center">
 
-# ⚡ BackendServer
+<img src="static/flash.gif" alt="Flash Server" width="200" style="border-radius: 12px; margin-bottom: 16px;" />
+
+# ⚡ Flash Server
 **Centralized Infrastructure API, System Telemetry & Operational Automation Hub**
 
 [![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)](/)
@@ -10,7 +12,7 @@
 [![Swagger](https://img.shields.io/badge/OpenAPI-3.0-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](http://localhost:5000/docs)
 [![Tailscale](https://img.shields.io/badge/Tailscale-Mesh-4E5EE4?style=for-the-badge&logo=tailscale&logoColor=white)](https://tailscale.com/)
 
-*BackendServer is the production API engine, system telemetry monitor, and automation hub for Stephen Giang's infrastructure (`flash-server` at `dev.stepheng753.com`).*
+*Flash Server is the production API engine, system telemetry monitor, and automation hub for Stephen Giang's infrastructure (`flash-server` at `dev.stepheng753.com`).*
 
 ---
 
@@ -36,7 +38,7 @@
 
 ## 🌟 Core Identity & Architecture
 
-`BackendServer` provides centralized operational intelligence and business automation across Stephen Giang's homelab server (`flash-server`). It bridges public web requests, containerized microservices, Google Cloud workspace tools, and communication APIs into a unified platform.
+`Flash Server` provides centralized operational intelligence and business automation across Stephen Giang's homelab server (`flash-server`). It bridges public web requests, containerized microservices, Google Cloud workspace tools, and communication APIs into a unified platform.
 
 ```
 [Public Web / Clients] ───> https://dev.stepheng753.com
@@ -124,7 +126,7 @@ Accessible at `http://localhost:5000/monitoring` (or `https://dev.stepheng753.co
 
 * **Top 10 Processes Table**: Real-time process listing with interactive **Sort by RAM** and **Sort by CPU** toggles, user badges, and memory metrics.
 * **Storage Devices & Mounts**: Live capacity and usage tracking across all 5 flash-server storage pools (`/`, `Dragon-Ball`, `Photos`, `CapCut-Videos`, `TV-Series`).
-* **Services Matrix**: Multi-threaded socket probes verifying uptime for 11 critical homelab services (`Immich`, `Jellyfin`, `qBittorrent`, `Gluetun`, `n8n`, `PostgreSQL`, `AIU`, `BackendServer`, `Nginx`, `Samba`, `Tailscale`).
+* **Services Matrix**: Multi-threaded socket probes verifying uptime for 11 critical homelab services (`Immich`, `Jellyfin`, `qBittorrent`, `Gluetun`, `n8n`, `PostgreSQL`, `AIU`, `Flash Server`, `Nginx`, `Samba`, `Tailscale`).
 * **Diagnostic Audit Suite**: One-click modal audit testing disk space, RAM pressure, CPU thermals, and background cron log freshness.
 * **Unified Dark Mode**: Defaults to system color scheme with manual toggle button.
 
@@ -334,7 +336,7 @@ Configuration parameters and secret credentials are kept strictly isolated:
 ### 1. Environment Setup
 ```bash
 # Clone and enter directory
-cd /home/stepheng753/Development/BackendServer
+cd /home/stepheng753/Development/FlashServer
 
 # Create and activate virtual environment
 python3 -m venv .venv
@@ -377,16 +379,16 @@ sudo journalctl -u dev_stepheng753_com_api.service -f
 On `flash-server`, schedule the automated billing workflow via `crontab -e`:
 ```bash
 # 1. Weekly Pay Calculation: Monday 4:00 AM PST
-0 4 * * 1 curl -sS -u "$USERNAME:$PASSWORD" -X POST https://dev.stepheng753.com/api/tutoring/run-calc >> /home/flash-server/Development/BackendServer/TutoringCalculator/logs/cron.log 2>&1
+0 4 * * 1 curl -sS -u "$USERNAME:$PASSWORD" -X POST https://dev.stepheng753.com/api/tutoring/run-calc >> /home/flash-server/Development/FlashServer/TutoringCalculator/logs/cron.log 2>&1
 
 # 2. Text Message Dispatch Guarded by Approval: Monday 12:00 PM (Noon) PST
-0 12 * * 1 curl -sS -u "$USERNAME:$PASSWORD" -X POST https://dev.stepheng753.com/api/tutoring/run-send-texts >> /home/flash-server/Development/BackendServer/TutoringCalculator/logs/cron.log 2>&1
+0 12 * * 1 curl -sS -u "$USERNAME:$PASSWORD" -X POST https://dev.stepheng753.com/api/tutoring/run-send-texts >> /home/flash-server/Development/FlashServer/TutoringCalculator/logs/cron.log 2>&1
 ```
 
 ### Daily Recurring Invoices Crontab
 Schedule the recurring invoices generator to check and generate scheduled invoices every day at 5:00 AM PST:
 ```bash
-0 5 * * * curl -sS -u "$USERNAME:$PASSWORD" -X POST https://dev.stepheng753.com/api/invoices/recurring/run >> /home/flash-server/Development/BackendServer/InvoiceGenerator/logs/cron.log 2>&1
+0 5 * * * curl -sS -u "$USERNAME:$PASSWORD" -X POST https://dev.stepheng753.com/api/invoices/recurring/run >> /home/flash-server/Development/FlashServer/InvoiceGenerator/logs/cron.log 2>&1
 ```
 
 ---
