@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flash Server - System Health & Operational Telemetry</title>
+  <link rel="icon" type="image/png" href="/static/flash.png" />
+  <link rel="shortcut icon" type="image/png" href="/static/flash.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/shared.css" />
+  <style>
+    :root {
+      --card: #ffffff;
+      --ring: #6ba3d6;
+      --input: #e5e7eb;
+      --muted: #f9fafb;
+      --accent: #eaf3fa;
+      --border: #e5e7eb;
+      --radius: 0.375rem;
+      --chart-1: #6ba3d6;
+      --chart-2: #548ec4;
+      --chart-3: #467eb5;
+      --chart-4: #3b6f9e;
+      --chart-5: #2d567c;
+      --popover: #ffffff;
+      --primary: #6ba3d6;
+      --sidebar: #f9fafb;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-sans: 'Inter', sans-serif;
+      --secondary: #f3f4f6;
+      --background: #ffffff;
+      --font-serif: 'Source Serif 4', serif;
+      --foreground: #111827;
+      --destructive: #ef4444;
+      --sidebar-ring: #6ba3d6;
+      --sidebar-accent: #eaf3fa;
+      --sidebar-border: #e5e7eb;
+      --card-foreground: #111827;
+      --sidebar-primary: #6ba3d6;
+      --muted-foreground: #4b5563;
+      --accent-foreground: #1e3a8a;
+      --popover-foreground: #111827;
+      --primary-foreground: #ffffff;
+      --sidebar-foreground: #111827;
+      --secondary-foreground: #374151;
+      --destructive-foreground: #ffffff;
+      --sidebar-accent-foreground: #1e3a8a;
+      --sidebar-primary-foreground: #ffffff;
+
+      /* Semantic Mappings */
+      --bg-page: var(--background);
+      --card-bg: var(--card);
+      --card-border: var(--border);
+      --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.03);
+      --card-hover-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      --text-main: var(--foreground);
+      --text-muted: var(--muted-foreground);
+      --text-secondary: var(--secondary-foreground);
+      --primary-blue: var(--primary);
+      --primary-blue-hover: var(--chart-2);
+      --blue-subtle: var(--accent);
+      
+      /* Status Colors */
+      --green-bg: #e6f4ea;
+      --green-text: #137333;
+      --green-border: #ceead6;
+      --green-bar: #34a853;
+      
+      --yellow-bg: #fef7e0;
+      --yellow-text: #b06000;
+      --yellow-border: #feefc3;
+      --yellow-bar: #fbbc04;
+
+      --red-bg: #fce8e6;
+      --red-text: var(--destructive);
+      --red-border: #fad2cf;
+      --red-bar: var(--destructive);
+
+      --gray-bg: var(--secondary);
+      --gray-text: var(--muted-foreground);
+      --gray-border: var(--border);
+
+      --orange-bg: #fff1e5;
+      --orange-text: #c2410c;
+      --orange-border: #ffddc2;
+    }
+
+    .dark, [data-theme="dark"] {
+      --card: #262626;
+      --ring: #6ba3d6;
+      --input: #404040;
+      --muted: #262626;
+      --accent: #1e293b;
+      --border: #404040;
+      --radius: 0.375rem;
+      --chart-1: #8bbbe5;
+      --chart-2: #6ba3d6;
+      --chart-3: #548ec4;
+      --chart-4: #467eb5;
+      --chart-5: #3b6f9e;
+      --popover: #262626;
+      --primary: #6ba3d6;
+      --sidebar: #171717;
+      --secondary: #262626;
+      --background: #171717;
+      --foreground: #ffffff; /* Crisp pure white text */
+      --destructive: #ef4444;
+      --sidebar-ring: #6ba3d6;
+      --sidebar-accent: #1e293b;
+      --sidebar-border: #404040;
+      --card-foreground: #ffffff;
+      --sidebar-primary: #6ba3d6;
+      --muted-foreground: #ffffff; /* Pure white text */
+      --accent-foreground: #ffffff;
+      --popover-foreground: #ffffff;
+      --primary-foreground: #ffffff;
+      --sidebar-foreground: #ffffff;
+      --secondary-foreground: #ffffff;
+      --destructive-foreground: #ffffff;
+      --sidebar-accent-foreground: #ffffff;
+      --sidebar-primary-foreground: #ffffff;
+
+      /* Semantic Mappings */
+      --bg-page: var(--background);
+      --card-bg: var(--card);
+      --card-border: var(--border);
+      --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+      --card-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+      --text-main: #ffffff;
+      --text-muted: #ffffff;
+      --text-secondary: #ffffff;
+      --primary-blue: var(--primary);
+      --primary-blue-hover: var(--chart-1);
+      --blue-subtle: rgba(59, 130, 246, 0.16);
+
+      --green-bg: #132d1d;
+      --green-text: #81c995;
+      --green-border: #1e462b;
+      --green-bar: #34a853;
+
+      --yellow-bg: #302611;
+      --yellow-text: #fdd663;
+      --yellow-border: #4d3e1b;
+      --yellow-bar: #fbbc04;
+
+      --red-bg: #371816;
+      --red-text: #f28b82;
+      --red-border: #562522;
+      --red-bar: var(--destructive);
+
+      --gray-bg: var(--secondary);
+      --gray-text: var(--muted-foreground);
+      --gray-border: var(--border);
+
+      --orange-bg: #381f15;
+      --orange-text: #fb923c;
+      --orange-border: #5a2e1d;
+    }
+
+    @theme inline {
+      --color-card: var(--card);
+      --color-ring: var(--ring);
+      --color-input: var(--input);
+      --color-muted: var(--muted);
+      --color-accent: var(--accent);
+      --color-border: var(--border);
+      --color-radius: var(--radius);
+      --color-chart-1: var(--chart-1);
+      --color-chart-2: var(--chart-2);
+      --color-chart-3: var(--chart-3);
+      --color-chart-4: var(--chart-4);
+      --color-chart-5: var(--chart-5);
+      --color-popover: var(--popover);
+      --color-primary: var(--primary);
+      --color-sidebar: var(--sidebar);
+      --color-font-mono: var(--font-mono);
+      --color-font-sans: var(--font-sans);
+      --color-secondary: var(--secondary);
+      --color-background: var(--background);
+      --color-font-serif: var(--font-serif);
+      --color-foreground: var(--foreground);
+      --color-destructive: var(--destructive);
+      --color-sidebar-ring: var(--sidebar-ring);
+      --color-sidebar-accent: var(--sidebar-accent);
+      --color-sidebar-border: var(--sidebar-border);
+      --color-card-foreground: var(--card-foreground);
+      --color-sidebar-primary: var(--sidebar-primary);
+      --color-muted-foreground: var(--muted-foreground);
+      --color-accent-foreground: var(--accent-foreground);
+      --color-popover-foreground: var(--popover-foreground);
+      --color-primary-foreground: var(--primary-foreground);
+      --color-sidebar-foreground: var(--sidebar-foreground);
+      --color-secondary-foreground: var(--secondary-foreground);
+      --color-destructive-foreground: var(--destructive-foreground);
+      --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+      --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      padding: 24px 32px 60px 32px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* TOP BRANDED NAVBAR */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 12px 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+    .brand-left img {
+      height: 38px;
+      width: auto;
+      border-radius: 6px;
+    }
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--primary-blue);
+    }
+    .brand-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: -2px;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .nav-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      background: var(--gray-bg);
+      text-decoration: none;
+      border: 1px solid var(--gray-border);
+      transition: all 0.2s ease;
+    }
+    .nav-link-btn:hover {
+      background: var(--blue-subtle);
+      color: var(--primary-blue);
+      border-color: #aecbfa;
+    }
+
+    /* HEADER BANNER CARD */
+    .header-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: #e95420;
+    }
+    .header-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+    }
+    .pulse-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--orange-bg);
+      border: 1px solid var(--orange-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--orange-text);
+      flex-shrink: 0;
+    }
+    .header-headings {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .title-row h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+    }
+    .header-description {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      max-width: 780px;
+    }
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
+    .audit-time {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .header-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* BADGES */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .badge-nominal, .badge-healthy {
+      background: var(--green-bg);
+      color: var(--green-text);
+      border: 1px solid var(--green-border);
+    }
+    .badge-warning {
+      background: var(--yellow-bg);
+      color: var(--yellow-text);
+      border: 1px solid var(--yellow-border);
+    }
+    .badge-critical {
+      background: var(--red-bg);
+      color: var(--red-text);
+      border: 1px solid var(--red-border);
+    }
+    .badge-normal, .badge-offline {
+      background: var(--gray-bg);
+      color: var(--gray-text);
+      border: 1px solid var(--gray-border);
+    }
+    .badge-ubuntu {
+      background: var(--orange-bg);
+      color: var(--orange-text);
+      border: 1px solid var(--orange-border);
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-diagnostic {
+      background: #fef9c3;
+      color: #854d0e;
+      border-color: #fde047;
+    }
+    .btn-diagnostic:hover {
+      background: #fef08a;
+      border-color: #eab308;
+    }
+    .btn-refresh-all {
+      background: #881337;
+      color: #ffffff;
+      border-color: #9f1239;
+    }
+    .btn-refresh-all:hover {
+      background: #700f2e;
+    }
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--text-main);
+      border-color: var(--card-border);
+    }
+    .btn-secondary:hover {
+      background: var(--gray-bg);
+    }
+    .btn-toggle-active {
+      background: var(--blue-subtle);
+      color: var(--primary-blue);
+      border-color: #aecbfa;
+    }
+
+    /* SECTION HEADERS */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 0.06em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-refresh {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .section-refresh:hover {
+      color: var(--primary-blue);
+    }
+
+    /* 4-CARD HARDWARE GRID */
+    .hw-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .telemetry-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .telemetry-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--card-hover-shadow);
+    }
+    .card-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .card-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+    }
+    .card-metric-val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* PROGRESS BARS */
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: #eceff1;
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 0.4s ease;
+      background: var(--green-bar);
+    }
+    .progress-fill.fill-warn {
+      background: var(--yellow-bar);
+    }
+    .progress-fill.fill-crit {
+      background: var(--red-bar);
+    }
+    .progress-fill.fill-darkred {
+      background: #881337;
+    }
+
+    /* CARD DETAILS */
+    .card-meta-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.80rem;
+    }
+    .card-meta-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+    .card-meta-item .key {
+      color: var(--text-secondary);
+    }
+    .card-meta-item .val {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* TABLES CONTAINER */
+    .table-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+    .table-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .table-title-group h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .table-title-group p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .toggle-group {
+      display: inline-flex;
+      background: var(--gray-bg);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid var(--gray-border);
+    }
+    .toggle-btn {
+      border: none;
+      background: transparent;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .toggle-btn.active {
+      background: var(--card-bg);
+      color: var(--primary-blue);
+      box-shadow: var(--card-shadow);
+    }
+
+    /* RESPONSIVE DATA TABLES */
+    .data-table-wrap {
+      overflow-x: auto;
+      width: 100%;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.82rem;
+    }
+    table.data-table th {
+      padding: 10px 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--card-border);
+      background: var(--gray-bg);
+      white-space: nowrap;
+    }
+    table.data-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--card-border);
+      color: var(--text-main);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    table.data-table tr:hover td {
+      background: var(--blue-subtle);
+    }
+
+    /* PILLS & MONOSPACE */
+    .user-pill {
+      background: var(--yellow-bg);
+      color: var(--yellow-text);
+      border: 1px solid var(--yellow-border);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .user-pill.root {
+      background: var(--red-bg);
+      color: var(--red-text);
+      border-color: var(--red-border);
+    }
+    .user-pill.flash {
+      background: var(--blue-subtle);
+      color: var(--primary-blue);
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+    .mono-pid {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+    }
+    .process-name {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .cmd-snippet {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      max-width: 380px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+    }
+    .mini-bar-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mini-bar {
+      width: 50px;
+      height: 5px;
+      background: var(--gray-bg);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .mini-bar-fill {
+      height: 100%;
+      background: var(--primary-blue);
+      border-radius: 4px;
+    }
+
+    /* SERVICES GRID */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .service-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+    .service-card:hover {
+      border-color: var(--primary-blue);
+      box-shadow: var(--card-hover-shadow);
+    }
+    .svc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .svc-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .svc-type-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--gray-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--gray-border);
+    }
+    .svc-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+    .svc-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--card-border);
+      padding-top: 10px;
+      margin-top: 4px;
+      font-size: 0.75rem;
+    }
+    .svc-port {
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .svc-link {
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .svc-link:hover {
+      text-decoration: underline;
+    }
+
+    /* MODAL STYLING */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.show {
+      display: flex;
+    }
+    .modal-dialog {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      width: 100%;
+      max-width: 760px;
+      max-height: 85vh;
+      border-radius: 16px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalPop {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+    }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: flex-end;
+      background: var(--bg-page);
+    }
+    .diag-item {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid var(--card-border);
+      background: var(--gray-bg);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .diag-item-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .diag-target {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+    .diag-msg {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* RESPONSIVE LAYOUT */
+    @media (max-width: 1100px) {
+      .hw-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: 16px 12px 40px 12px;
+      }
+      .top-nav {
+        padding: 12px 14px;
+        gap: 10px;
+      }
+      .nav-actions {
+        gap: 8px;
+      }
+      .nav-btn {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+      }
+      .header-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+        padding: 18px 16px;
+      }
+      .header-right {
+        align-items: flex-start;
+        width: 100%;
+      }
+      .hw-grid {
+        grid-template-columns: 1fr;
+      }
+      .table-top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .table-actions {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+    }
+
+    /* SPIN ANIMATION */
+    .spin {
+      animation: rotate 1s linear infinite;
+    }
+    @keyframes rotate {
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- TOP NAVBAR -->
+  <nav class="top-nav">
+    <a href="/monitoring" class="brand-left">
+      <img src="/static/flash.png" alt="Flash Logo" />
+      <div>
+        <div class="brand-title">Flash Server Monitoring</div>
+        <div class="brand-subtitle">Telemetry & Diagnostics Console</div>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/docs" class="nav-btn" title="View Swagger API Documentation">
+        Docs
+      </a>
+      <a href="/tutoring" class="nav-btn" title="Open Tutoring Calculator Console">
+        Tutoring Calc
+      </a>
+      <a href="/monitoring" class="nav-btn active" title="Flash Server Monitoring">
+        System Monitor
+      </a>
+      <a href="/todo" class="nav-btn" title="Crossroads To-Do Board">
+        To Do
+      </a>
+      <a href="/invoices" class="nav-btn" title="Invoice Generator & History">
+        Invoices
+      </a>
+      <a href="/finance" class="nav-btn" title="Financial Dashboard & SimpleFIN">
+        Finance
+      </a>
+      <button id="theme-toggle" class="nav-btn" style="cursor: pointer;" aria-label="Toggle Theme" title="Toggle Theme">
+        <img src="/static/day-and-night.svg" alt="Theme" class="theme-icon" />
+      </button>
+    </div>
+  </nav>
+
+  <!-- HEADER BANNER CARD -->
+  <div class="header-card">
+    <div class="header-left">
+      <div class="pulse-icon-box">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+      </div>
+      <div class="header-headings">
+        <div class="title-row">
+          <h1>System Health & Operational Telemetry</h1>
+          <span class="status-badge badge-normal" id="env-badge">Detecting...</span>
+        </div>
+        <p class="header-description">
+          Live hardware telemetry, daemon process matrix, disk storage audits, network mesh, and diagnostic test suite.
+        </p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="audit-time">Audited: <span id="audit-timestamp">--:--:-- --</span></div>
+      <div class="header-buttons">
+        <!-- Auto refresh selector -->
+        <select id="auto-refresh-select" onchange="handleAutoRefreshChange()" style="padding: 7px 10px; border-radius: 8px; border: 1px solid var(--card-border); font-size: 0.8rem; background: var(--card-bg); color: var(--text-main); font-weight: 500;">
+          <option value="0">Auto-refresh: Off</option>
+          <option value="5">Auto-refresh: 5s</option>
+          <option value="10" selected>Auto-refresh: 10s</option>
+          <option value="30">Auto-refresh: 30s</option>
+        </select>
+        <button class="btn btn-diagnostic" onclick="openDiagnosticModal()">
+          Run Diagnostic Suite
+        </button>
+        <button class="btn btn-refresh-all" id="btn-refresh-all" onclick="refreshAllTelemetry()">
+          <span id="refresh-icon"></span>Refresh All
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: HARDWARE & OPERATING SYSTEM -->
+  <div class="section-header">
+    <div class="section-title">
+      HARDWARE & OPERATING SYSTEM
+    </div>
+    <a href="javascript:void(0)" class="section-refresh" onclick="fetchSystemTelemetry()">
+      <span class="refresh-hw-icon"></span>Refresh
+    </a>
+  </div>
+
+  <div class="hw-grid">
+    <!-- 1. CPU LOAD -->
+    <div class="telemetry-card">
+      <div>
+        <div class="card-top-row">
+          <span class="card-label">CPU LOAD</span>
+          <span class="card-metric-val" id="cpu-load-val">0.0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="cpu-load-bar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="card-meta-list">
+        <div class="card-meta-item">
+          <span class="key">Cores:</span>
+          <span class="val" id="cpu-cores-val">-- Cores</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="key">Load Avg:</span>
+          <span class="val" id="cpu-loadavg-val">0.00 / 0.00 / 0.00</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="key">Package Temp:</span>
+          <span class="val" id="cpu-temp-val">--°C</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. MEMORY (RAM) -->
+    <div class="telemetry-card">
+      <div>
+        <div class="card-top-row">
+          <span class="card-label">MEMORY (RAM)</span>
+          <span class="card-metric-val" id="mem-percent-val">0.0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="mem-progress-bar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="card-meta-list">
+        <div class="card-meta-item">
+          <span class="key">Used / Total:</span>
+          <span class="val" id="mem-used-total">-- / --</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="key">Available:</span>
+          <span class="val" id="mem-available">-- Free</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="key">Swap:</span>
+          <span class="val" id="mem-swap">0 B</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. STORAGE DISKS (ROOT) -->
+    <div class="telemetry-card">
+      <div>
+        <div class="card-top-row">
+          <span class="card-label">OS ROOT STORAGE</span>
+          <span class="card-metric-val" id="storage-root-pct">0.0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="storage-root-bar" style="width: 0%;"></div>
+        </div>
+      </div>
+      <div class="card-meta-list">
+        <div class="card-meta-item">
+          <span class="key">Capacity:</span>
+          <span class="val" id="storage-root-capacity">-- / --</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="key">Free Space:</span>
+          <span class="val" id="storage-root-free">-- Free</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="key">Status:</span>
+          <span class="val" id="storage-root-status">Normal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. HOST & KERNEL -->
+    <div class="telemetry-card">
+      <div>
+        <div class="card-top-row">
+          <span class="card-label">HOST & KERNEL</span>
+          <span class="status-badge badge-ubuntu" id="host-os-badge">Linux</span>
+        </div>
+      </div>
+      <div class="card-meta-list" style="margin-top: 8px;">
+        <div class="card-meta-item">
+          <span class="key">Hostname:</span>
+          <span class="val" id="host-name-val">--</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="key">Kernel:</span>
+          <span class="val" id="host-kernel-val" style="font-size: 0.72rem;">--</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="key">System Uptime:</span>
+          <span class="val" id="host-uptime-val">--</span>
+        </div>
+        <div class="card-meta-item">
+          <span class="key">Tailscale IP:</span>
+          <span class="val" id="host-tailscale-val" style="font-size: 0.72rem;">--</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: TOP 10 PROCESSES TABLE -->
+  <div class="table-card">
+    <div class="table-top-bar">
+      <div class="table-title-group">
+        <h2 id="process-table-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+          TOP 10 PROCESSES BY RAM UTILIZATION
+        </h2>
+        <p>Live resident set memory (RSS) footprints & resource consumption</p>
+      </div>
+      <div class="table-actions">
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-sort-ram" onclick="setProcessSort('ram')">Sort by RAM</button>
+          <button class="toggle-btn" id="btn-sort-cpu" onclick="setProcessSort('cpu')">Sort by CPU</button>
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 500;">
+          RAM In Use: <strong id="procs-ram-summary" style="color: var(--text-main);">--</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 38px;">#</th>
+            <th style="width: 80px;">PID</th>
+            <th style="width: 110px;">USER</th>
+            <th>PROCESS</th>
+            <th>RAM (RSS)</th>
+            <th>% MEMORY</th>
+            <th>% CPU</th>
+            <th>COMMAND</th>
+          </tr>
+        </thead>
+        <tbody id="process-table-body">
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-secondary); padding: 30px;">
+              Loading process telemetry...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 3: STORAGE DEVICES & MOUNTS -->
+  <div class="table-card">
+    <div class="table-top-bar">
+      <div class="table-title-group">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+          STORAGE DEVICES & MOUNTS (/etc/fstab)
+        </h2>
+        <p>Hardware storage partitions, NTFS network media shares, and capacity limits</p>
+      </div>
+      <div class="table-actions">
+        <span class="status-badge badge-warning" id="storage-alert-pill" style="display: none;">Warnings</span>
+      </div>
+    </div>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>DEVICE</th>
+            <th>MODEL / DESCRIPTION</th>
+            <th>MOUNT POINT</th>
+            <th>FS</th>
+            <th>CAPACITY</th>
+            <th>USED</th>
+            <th>FREE</th>
+            <th style="width: 140px;">USE %</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="storage-table-body">
+          <tr>
+            <td colspan="9" style="text-align: center; color: var(--text-secondary); padding: 24px;">
+              Scanning storage mounts...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 4: SERVICES & DOCKER MATRIX -->
+  <div class="table-card">
+    <div class="table-top-bar">
+      <div class="table-title-group">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+          SERVICES & APPLICATION MATRIX
+        </h2>
+        <p>Real-time operational status for Immich, Jellyfin, Docker engines, PM2, and system daemons</p>
+      </div>
+      <div class="table-actions">
+        <span class="status-badge badge-healthy" id="services-online-counter">Checking...</span>
+      </div>
+    </div>
+
+    <div class="services-grid" id="services-grid">
+      <!-- Injected dynamically -->
+    </div>
+  </div>
+
+</div>
+
+<!-- DIAGNOSTIC SUITE MODAL -->
+<div class="modal-backdrop" id="diag-modal" onclick="closeDiagnosticModal(event)">
+  <div class="modal-dialog" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        System Diagnostic Audit Suite
+      </div>
+      <button onclick="closeDiagnosticModal()" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 12px 16px; background: var(--gray-bg); border: 1px solid var(--card-border); border-radius: 8px;">
+        <div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 600;">AUDIT RESULT</div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-main);" id="modal-audit-summary">Running checks...</div>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);" id="modal-audit-timestamp">--</div>
+      </div>
+      <div id="diag-items-container">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDiagnosticModal()">Close</button>
+      <button class="btn btn-diagnostic" onclick="triggerRunDiagnostics()" style="margin-left: 8px;">Re-run Audit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // State management
+  let currentSort = 'ram';
+  let autoRefreshInterval = null;
+
+  // Initialize
+  window.addEventListener('DOMContentLoaded', () => {
+    refreshAllTelemetry();
+    setupAutoRefresh();
+  });
+
+  function setProcessSort(sort) {
+    currentSort = sort;
+    document.getElementById('btn-sort-ram').classList.toggle('active', sort === 'ram');
+    document.getElementById('btn-sort-cpu').classList.toggle('active', sort === 'cpu');
+    document.getElementById('process-table-title').innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      TOP 10 PROCESSES BY ${sort.toUpperCase()} UTILIZATION
+    `;
+    fetchProcesses();
+  }
+
+  function handleAutoRefreshChange() {
+    const val = parseInt(document.getElementById('auto-refresh-select').value);
+    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    if (val > 0) {
+      autoRefreshInterval = setInterval(refreshAllTelemetry, val * 1000);
+    }
+  }
+
+  function setupAutoRefresh() {
+    handleAutoRefreshChange();
+  }
+
+  function refreshAllTelemetry() {
+    const icon = document.getElementById('refresh-icon');
+    if (icon) icon.classList.add('spin');
+
+    Promise.all([
+      fetchSystemTelemetry(),
+      fetchProcesses(),
+      fetchStorage(),
+      fetchServices(),
+      fetchDiagnosticsSummary()
+    ]).finally(() => {
+      setTimeout(() => {
+        if (icon) icon.classList.remove('spin');
+      }, 400);
+    });
+  }
+
+  // 1. Fetch System Telemetry
+  async function fetchSystemTelemetry() {
+    try {
+      const res = await fetch('/api/monitoring/system', { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // Update Header
+      const now = new Date();
+      document.getElementById('audit-timestamp').innerText = now.toLocaleTimeString();
+      document.getElementById('env-badge').innerText = data.environment || 'System Active';
+      document.getElementById('env-badge').className = 'status-badge ' + (data.is_wsl ? 'badge-normal' : 'badge-healthy');
+
+      // CPU
+      const cpu = data.cpu || {};
+      const cpuPct = cpu.load_percent || 0;
+      document.getElementById('cpu-load-val').innerText = cpuPct + '%';
+      const cpuBar = document.getElementById('cpu-load-bar');
+      cpuBar.style.width = Math.min(cpuPct, 100) + '%';
+      cpuBar.className = 'progress-fill ' + (cpuPct > 85 ? 'fill-crit' : (cpuPct > 60 ? 'fill-warn' : ''));
+
+      document.getElementById('cpu-cores-val').innerText = `${cpu.cores_physical || 4} Cores / ${cpu.cores_logical || 4} Threads`;
+      document.getElementById('cpu-loadavg-val').innerText = `${cpu.load_avg_1m} / ${cpu.load_avg_5m} / ${cpu.load_avg_15m}`;
+      document.getElementById('cpu-temp-val').innerText = cpu.temperature_c ? `~${cpu.temperature_c}°C` : 'Normal';
+
+      // Memory
+      const mem = data.memory || {};
+      const memPct = mem.percent || 0;
+      document.getElementById('mem-percent-val').innerText = memPct + '%';
+      const memBar = document.getElementById('mem-progress-bar');
+      memBar.style.width = Math.min(memPct, 100) + '%';
+      memBar.className = 'progress-fill ' + (memPct > 85 ? 'fill-crit' : (memPct > 70 ? 'fill-warn' : ''));
+
+      document.getElementById('mem-used-total').innerText = `${mem.used_formatted} / ${mem.total_formatted}`;
+      document.getElementById('mem-available').innerText = `${mem.available_formatted} Free`;
+      document.getElementById('mem-swap').innerText = mem.swap_formatted || '0 B';
+
+      // Host & Kernel
+      document.getElementById('host-os-badge').innerText = data.os.includes('Ubuntu') ? 'Ubuntu' : 'Linux';
+      document.getElementById('host-name-val').innerText = data.hostname || 'flash-server';
+      document.getElementById('host-kernel-val').innerText = data.kernel || 'Linux 6.x';
+      document.getElementById('host-uptime-val').innerText = data.uptime_formatted || '--';
+      document.getElementById('host-tailscale-val').innerText = data.tailscale_ip || '--';
+
+    } catch (e) {
+      console.error('System telemetry fetch error:', e);
+    }
+  }
+
+  // 2. Fetch Top Processes
+  async function fetchProcesses() {
+    try {
+      const res = await fetch(`/api/monitoring/processes?sort=${currentSort}&limit=10`, { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      document.getElementById('procs-ram-summary').innerText = data.ram_in_use_formatted || '--';
+      const tbody = document.getElementById('process-table-body');
+      tbody.innerHTML = '';
+
+      if (!data.processes || data.processes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px;">No processes found.</td></tr>';
+        return;
+      }
+
+      data.processes.forEach((p, idx) => {
+        const user = p.user || p.username || 'system';
+        const userClass = user === 'root' ? 'root' : (user.toLowerCase().includes('flash') ? 'flash' : '');
+        const ramFormatted = p.ram_rss_formatted || p.rss_formatted || '--';
+        const ramPercent = p.ram_percent != null ? p.ram_percent : (p.memory_percent != null ? p.memory_percent : 0);
+        const cpuPercent = p.cpu_percent != null ? p.cpu_percent : 0;
+        const cmdline = p.cmdline || p.name || 'Unknown';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color: var(--text-secondary); font-weight: 500;">#${idx + 1}</td>
+          <td class="mono-pid">${p.pid}</td>
+          <td><span class="user-pill ${userClass}">${escapeHtml(user)}</span></td>
+          <td class="process-name">${escapeHtml(p.name)}</td>
+          <td style="font-weight: 600;">${ramFormatted}</td>
+          <td>
+            <div class="mini-bar-cell">
+              <span>${ramPercent}%</span>
+              <div class="mini-bar"><div class="mini-bar-fill" style="width: ${Math.min(ramPercent * 2.5, 100)}%;"></div></div>
+            </div>
+          </td>
+          <td>
+            <div class="mini-bar-cell">
+              <span>${cpuPercent}%</span>
+              <div class="mini-bar"><div class="mini-bar-fill" style="background: #e95420; width: ${Math.min(cpuPercent * 2, 100)}%;"></div></div>
+            </div>
+          </td>
+          <td><span class="cmd-snippet" title="${escapeHtml(cmdline)}">${escapeHtml(cmdline)}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      console.error('Processes fetch error:', e);
+    }
+  }
+
+  // 3. Fetch Storage Mounts
+  async function fetchStorage() {
+    try {
+      const res = await fetch('/api/monitoring/storage', { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const disks = await res.json();
+
+      const tbody = document.getElementById('storage-table-body');
+      tbody.innerHTML = '';
+
+      let warningCount = 0;
+      let rootDisk = null;
+
+      disks.forEach(d => {
+        if (d.mount_point === '/') rootDisk = d;
+        if (d.percent >= 90) warningCount++;
+
+        const fillClass = d.percent >= 95 ? 'fill-crit' : (d.percent >= 90 ? 'fill-warn' : '');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">${escapeHtml(d.device)}</td>
+          <td style="color: var(--text-muted);">${escapeHtml(d.model || '')}</td>
+          <td style="font-weight: 600; color: var(--primary-blue);">${escapeHtml(d.mount_point)}</td>
+          <td style="color: var(--text-secondary); font-size: 0.75rem;">${escapeHtml(d.fstype || '')}</td>
+          <td>${d.total_formatted}</td>
+          <td style="font-weight: 600;">${d.used_formatted}</td>
+          <td style="color: var(--green-text); font-weight: 600;">${d.free_formatted}</td>
+          <td>
+            <div class="mini-bar-cell">
+              <span style="min-width: 38px; font-weight: 600;">${d.percent}%</span>
+              <div class="mini-bar" style="width: 70px;">
+                <div class="mini-bar-fill ${fillClass}" style="width: ${d.percent}%;"></div>
+              </div>
+            </div>
+          </td>
+          <td><span class="status-badge ${d.status_class || 'badge-normal'}">${d.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Update Root Disk Overview Card
+      if (rootDisk) {
+        document.getElementById('storage-root-pct').innerText = rootDisk.percent + '%';
+        const bar = document.getElementById('storage-root-bar');
+        bar.style.width = rootDisk.percent + '%';
+        bar.className = 'progress-fill ' + (rootDisk.percent > 90 ? 'fill-crit' : (rootDisk.percent > 75 ? 'fill-darkred' : ''));
+        document.getElementById('storage-root-capacity').innerText = `${rootDisk.used_formatted} / ${rootDisk.total_formatted}`;
+        document.getElementById('storage-root-free').innerText = `${rootDisk.free_formatted} Free`;
+        document.getElementById('storage-root-status').innerText = rootDisk.status;
+      }
+
+      // Storage Alert Pill
+      const alertPill = document.getElementById('storage-alert-pill');
+      if (warningCount > 0) {
+        alertPill.style.display = 'inline-flex';
+        alertPill.innerText = `${warningCount} Disks High Usage`;
+      } else {
+        alertPill.style.display = 'none';
+      }
+
+    } catch (e) {
+      console.error('Storage fetch error:', e);
+    }
+  }
+
+  // 4. Fetch Services Status
+  async function fetchServices() {
+    try {
+      const res = await fetch('/api/monitoring/services', { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const services = await res.json();
+
+      const grid = document.getElementById('services-grid');
+      grid.innerHTML = '';
+
+      let onlineCount = 0;
+      services.forEach(s => {
+        if (s.status === 'online') onlineCount++;
+        const card = document.createElement('div');
+        card.className = 'service-card';
+        card.innerHTML = `
+          <div>
+            <div class="svc-header">
+              <span class="svc-title">${escapeHtml(s.name)}</span>
+              <span class="status-badge ${s.status_class}">${s.status === 'online' ? 'Online' : 'Standby'}</span>
+            </div>
+            <div style="display: flex; gap: 6px; margin: 6px 0;">
+              <span class="svc-type-badge">${s.type}</span>
+              ${s.latency_ms ? `<span style="font-size: 0.68rem; color: var(--green-text); font-weight: 600;">${s.latency_ms}ms</span>` : ''}
+            </div>
+            <p class="svc-desc">${escapeHtml(s.description || s.note || '')}</p>
+          </div>
+          <div class="svc-footer">
+            <span class="svc-port">${s.port ? `Port :${s.port}` : 'Systemd'}</span>
+            ${s.public_url ? `<a href="${s.public_url}" target="_blank" rel="noopener" class="svc-link">Launch</a>` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      document.getElementById('services-online-counter').innerText = `${onlineCount} / ${services.length} Online`;
+      document.getElementById('services-online-counter').className = 'status-badge ' + (onlineCount === services.length ? 'badge-healthy' : 'badge-warning');
+
+    } catch (e) {
+      console.error('Services fetch error:', e);
+    }
+  }
+
+  // 5. Diagnostics Audit Summary
+  async function fetchDiagnosticsSummary() {
+    try {
+      const res = await fetch('/api/monitoring/diagnostics', { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      const badge = document.getElementById('header-overall-badge');
+      if (badge) {
+        badge.innerText = data.overall_status;
+        badge.className = 'status-badge ' + data.overall_badge_class;
+      }
+    } catch (e) {
+      console.error('Diagnostics summary error:', e);
+    }
+  }
+
+  // Diagnostic Suite Modal Logic
+  async function openDiagnosticModal() {
+    const modal = document.getElementById('diag-modal');
+    modal.classList.add('show');
+    await triggerRunDiagnostics();
+  }
+
+  function closeDiagnosticModal() {
+    document.getElementById('diag-modal').classList.remove('show');
+  }
+
+  async function triggerRunDiagnostics() {
+    const container = document.getElementById('diag-items-container');
+    container.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--text-secondary);">Executing diagnostic suite...</div>';
+
+    try {
+      const res = await fetch('/api/monitoring/diagnostics', { credentials: 'same-origin' });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      document.getElementById('modal-audit-summary').innerText = data.overall_status;
+      document.getElementById('modal-audit-timestamp').innerText = `Audited: ${data.audited_at}`;
+
+      container.innerHTML = '';
+      data.checks.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'diag-item';
+        item.innerHTML = `
+          <div class="diag-item-left">
+            <span style="font-size: 0.70rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">${escapeHtml(c.category)}</span>
+            <div class="diag-target">${escapeHtml(c.target)}</div>
+            <div class="diag-msg">${escapeHtml(c.message)}</div>
+          </div>
+          <div>
+            <span class="status-badge ${c.status_class}">${c.status}</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    } catch (e) {
+      container.innerHTML = '<div style="color: var(--red-text); padding: 10px;">Failed to execute diagnostics.</div>';
+    }
+  }
+
+  // Utility
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // --- UNIFIED THEME SYSTEM (Defaults to System Preferences) ---
+  function initTheme() {
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+      setTheme(saved, false);
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light', false);
+    }
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light', false);
+      }
+    });
+  }
+
+  function setTheme(theme, save = true) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    if (save) localStorage.setItem('theme', theme);
+  }
+
+  const themeBtn = document.getElementById('theme-toggle');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      setTheme(current === 'dark' ? 'light' : 'dark', true);
+    });
+  }
+
+  initTheme();
+</script>
+
+</body>
+</html>

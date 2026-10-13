@@ -47,7 +47,7 @@ def check_auth():
         return None
 
     # Allow static assets, CSS, and favicon without triggering separate auth prompt
-    if request.path.startswith('/static/') or request.path.startswith('/css/') or request.path == '/favicon.ico':
+    if request.path.startswith('/static/') or request.path == '/favicon.ico':
         return None
 
     # Allow public access to the Privacy Policy for Google OAuth app publishing and direct link access

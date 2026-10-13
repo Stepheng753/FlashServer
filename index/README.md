@@ -9,8 +9,7 @@ The `index` package houses the core HTTP Basic Authentication middleware and sec
 * **Centralized Authentication Middleware**: Implemented as a Flask `before_request` hook in `app.py`. Enforces HTTP Basic Authentication (`WWW-Authenticate: Basic realm="Login Required"`) across all web pages and REST API routes.
 * **Credentials Discovery**: Automatically resolves `USERNAME` and `PASSWORD` from `config/secrets.json` (falling back to `config/config.json`).
 * **Route Exemption Safeguards**: Selectively bypasses authentication only for:
-  * Static brand assets (`/static/*`, `/favicon.ico`)
-  * Global design stylesheets (`/css/*`)
+  * Static brand assets and the shared stylesheet (`/static/*`, incl. `shared.css`, `/favicon.ico`)
   * Public Privacy Policy (`/privacy`, `/TutoringCalculator/privacy`) required for Google Cloud OAuth verification
   * Google OAuth callback redirect (`/login_oauth`) when containing an authorization code
 

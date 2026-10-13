@@ -37,7 +37,12 @@ docs/setup/setup.conf
 
 
 # Application Keys and Logs
-TutoringCalculator/keys/*
-!TutoringCalculator/keys/.gitkeep
-TutoringCalculator/logs/*
-!TutoringCalculator/logs/.gitkeep
+modules/TutoringCalculator/keys/*
+!modules/TutoringCalculator/keys/.gitkeep
+modules/TutoringCalculator/logs/*
+!modules/TutoringCalculator/logs/.gitkeep
+
+# Runtime data (databases)
+data/
+.coverage
+htmlcov/

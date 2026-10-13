@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Crossroads Tutoring</title>
+  <meta name="description" content="Privacy Policy for Crossroads Tutoring and developer services hosted on dev.stepheng753.com detailing Google API user data usage, permissions, and compliance with Google API Services User Data Policy." />
+  <link rel="icon" type="image/png" href="/static/flash.png" />
+  <link rel="shortcut icon" type="image/png" href="/static/flash.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/shared.css" />
+  <style>
+    :root {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      background-color: #f8fafc;
+      color: #1e293b;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 20px 80px;
+    }
+
+    .container {
+      max-width: 820px;
+      width: 100%;
+    }
+
+    .policy-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 48px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (max-width: 640px) {
+      .policy-card {
+        padding: 28px 20px;
+      }
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 16px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      background: #0284c7;
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.025em;
+    }
+
+    .subtitle {
+      font-size: 1.125rem;
+      color: #64748b;
+      margin: 0 0 28px 0;
+    }
+
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 14px 18px;
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 36px;
+    }
+
+    .meta-item strong {
+      color: #334155;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #0f172a;
+      margin: 36px 0 14px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+      letter-spacing: -0.015em;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 20px 0 8px 0;
+    }
+
+    p {
+      margin: 0 0 16px 0;
+      color: #334155;
+      font-size: 0.975rem;
+    }
+
+    ul, ol {
+      margin: 0 0 18px 0;
+      padding-left: 24px;
+      color: #334155;
+      font-size: 0.975rem;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .scope-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #6ba3d6;
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 14px 0 18px 0;
+    }
+
+    .scope-box .scope-title {
+      font-weight: 600;
+      color: #0f172a;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .scope-code {
+      font-family: var(--font-mono);
+      font-size: 0.825rem;
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #334155;
+      word-break: break-all;
+    }
+
+    .scope-desc {
+      font-size: 0.9rem;
+      color: #475569;
+      margin: 0;
+    }
+
+    /* Limited Use Callout Box */
+    .callout-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 24px 0;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      color: #1e40af;
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .callout-content {
+      font-size: 0.95rem;
+      color: #1e3a8a;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .callout-content a {
+      color: #1d4ed8;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    .callout-content a:hover {
+      color: #1e40af;
+    }
+
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="container">
+      <div class="policy-card">
+        <div class="header-badge">
+          <span class="badge-dot"></span>
+          Privacy Policy
+        </div>
+        
+        <h1>Privacy Policy</h1>
+        <div class="subtitle">Crossroads Tutoring & Developer Services</div>
+
+        <div class="meta-bar">
+          <div class="meta-item"><strong>Application:</strong> Crossroads Tutoring Billing & Operations</div>
+          <div class="meta-item"><strong>Developer:</strong> Stephen Giang</div>
+          <div class="meta-item"><strong>Effective Date:</strong> September 21, 2026</div>
+        </div>
+
+        <p>
+          This Privacy Policy explains how Crossroads Tutoring and developer tools hosted at <code>dev.stepheng753.com</code> ("we", "us", or "our") handle user data when you authenticate and use our Google Cloud API integration. We are committed to safeguarding your privacy and ensuring transparency regarding any data accessed through Google APIs.
+        </p>
+
+        <h2>1. Scope of This Policy</h2>
+        <p>
+          This policy applies strictly to the Crossroads Tutoring administrative, billing, and scheduling software operated by Stephen Giang. The application is an internal productivity tool designed to streamline weekly lesson tracking, invoice preparation, and administrative notifications.
+        </p>
+
+        <h2>2. Google User Data Accessed & Permissions</h2>
+        <p>
+          Our application requests access to specific Google user data strictly necessary to execute its primary billing and calendar calculation functions. We request the following Google OAuth 2.0 scopes:
+        </p>
+
+        <div class="scope-box">
+          <div class="scope-title">
+            <span>📅 Google Calendar (Read-Only)</span>
+          </div>
+          <p><span class="scope-code">https://www.googleapis.com/auth/calendar.readonly</span></p>
+          <p class="scope-desc">
+            <strong>Purpose:</strong> To query calendar events on the designated tutoring calendar, calculate student lesson hours during the billing week, and filter events that start within the target billing window. We do not edit, delete, or create calendar events.
+          </p>
+        </div>
+
+        <div class="scope-box">
+          <div class="scope-title">
+            <span>📁 Google Drive</span>
+          </div>
+          <p><span class="scope-code">https://www.googleapis.com/auth/drive</span></p>
+          <p class="scope-desc">
+            <strong>Purpose:</strong> To copy the weekly billing spreadsheet template into the designated yearly archive folder in Google Drive and manage spreadsheet file naming for administrative review.
+          </p>
+        </div>
+
+        <div class="scope-box">
+          <div class="scope-title">
+            <span>📊 Google Sheets</span>
+          </div>
+          <p><span class="scope-code">https://www.googleapis.com/auth/spreadsheets</span></p>
+          <p class="scope-desc">
+            <strong>Purpose:</strong> To read student roster names and previous unpaid balances, write calculated tutoring hours into student rows, and update payment status records.
+          </p>
+        </div>
+
+        <div class="scope-box">
+          <div class="scope-title">
+            <span>✉️ Gmail (Send)</span>
+          </div>
+          <p><span class="scope-code">https://www.googleapis.com/auth/gmail.send</span></p>
+          <p class="scope-desc">
+            <strong>Purpose:</strong> To automatically send a weekly summary notification email containing billing metrics and spreadsheet links directly to the administrator (<a href="mailto:stepheng753@gmail.com">stepheng753@gmail.com</a>). We do not read, access, or delete your emails.
+          </p>
+        </div>
+
+        <h2>3. How We Use Google User Data</h2>
+        <p>The data retrieved via Google APIs is used exclusively for:</p>
+        <ul>
+          <li>Calculating tutoring session durations for each enrolled student during the active billing cycle.</li>
+          <li>Populating weekly invoice spreadsheets with lesson hours, rates, and rollover balances.</li>
+          <li>Sending automated administrative calculation summary alerts to the developer/operator.</li>
+        </ul>
+
+        <div class="callout-box">
+          <div class="callout-title">
+            <span>🔒 Google API Services User Data Policy Compliance</span>
+          </div>
+          <p class="callout-content">
+            The Crossroads Tutoring application's use and transfer of information received from Google APIs to any other app will adhere to the 
+            <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, 
+            including the <strong>Limited Use</strong> requirements.
+          </p>
+        </div>
+
+        <h2>4. Data Sharing, Selling, and Disclosure</h2>
+        <p>We hold a strict policy regarding the privacy of your data:</p>
+        <ul>
+          <li><strong>No Sale of Data:</strong> We do not sell, rent, trade, or monetize Google user data or personal data under any circumstances.</li>
+          <li><strong>No Third-Party Transfer:</strong> We do not transfer or share your Google user data with any third parties, advertisers, or data brokers.</li>
+          <li><strong>No Advertising:</strong> Google user data is never used to serve targeted advertisements, marketing campaigns, or retargeting pixels.</li>
+          <li><strong>No AI/Machine Learning Model Training:</strong> Google user data is not used to train, retrain, or improve generalized artificial intelligence (AI) or machine learning (ML) models.</li>
+        </ul>
+
+        <h2>5. Data Storage & Security</h2>
+        <p>
+          Our application runs on a private Linux server. OAuth authentication tokens are stored securely in encrypted or restricted-access local files on the server and are refreshed automatically via HTTPS directly with Google's authentication servers. No personal Google user data is sent to external databases, analytics trackers, or cloud storage providers outside Google Cloud infrastructure.
+        </p>
+
+        <h2>6. Data Retention & Revocation</h2>
+        <p>
+          You can revoke our application's access to your Google Account at any time. To revoke permissions:
+        </p>
+        <ol>
+          <li>Visit your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener noreferrer">Google Account Third-Party Apps Permissions</a> page.</li>
+          <li>Select the <strong>Crossroads Tutoring</strong> (or <strong>Stephen Giang</strong>) application.</li>
+          <li>Click <strong>Remove Access</strong> (or <strong>Delete all connections</strong>).</li>
+        </ol>
+        <p>
+          Upon revocation, our application will immediately lose all ability to access your Google Calendar, Google Drive, Google Sheets, and Gmail APIs.
+        </p>
+
+        <h2>7. Changes to This Privacy Policy</h2>
+        <p>
+          We may update this Privacy Policy from time to time to reflect modifications in our software or regulatory requirements. Any updates will be posted directly to this page with a revised effective date.
+        </p>
+
+        <h2>8. Contact Information</h2>
+        <p>
+          If you have questions, concerns, or requests regarding this Privacy Policy or the handling of your data, please contact:
+        </p>
+        <p>
+          <strong>Stephen Giang</strong><br />
+          Crossroads Tutoring<br />
+          Email: <a href="mailto:stepheng753@gmail.com">stepheng753@gmail.com</a><br />
+          Host: <code>dev.stepheng753.com</code>
+        </p>
+      </div>
+
+      <div class="footer">
+        &copy; 2026 Stephen Giang — Crossroads Tutoring. All rights reserved.
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="static/flash.gif" alt="Flash Server" width="200" style="border-radius: 12px; margin-bottom: 16px;" />
+<img src="index/static/flash.gif" alt="Flash Server" width="200" style="border-radius: 12px; margin-bottom: 16px;" />
 
 # ⚡ Flash Server
 **Centralized Infrastructure API, System Telemetry & Operational Automation Hub**
@@ -64,7 +64,7 @@
    [ToDo Board BP]          [Invoice Generator BP]
    - Categorized Board      - Pure-Python Vector PDFs
    - Drag-and-Drop Order    - Multi-Sender Profiles
-   - Monday 2 AM Archive    - Client Presets & History
+   - Task Archival          - Client Presets & History
 ```
 
 ### 💼 Operational Philosophy
@@ -95,7 +95,7 @@
 ### Key Capabilities
 1. **Host & Container Telemetry:** Real-time metrics on 12-thread CPU loads, package thermals, DDR4 RAM utilization, NVMe & 32TB HDD array storage pools, and top processes.
 2. **Automated Weekly Billing Pipeline:** Parses Google Calendar events for tutoring hours, computes rollover balances, generates structured Google Sheets invoices, and dispatches customized SMS payment texts via Twilio.
-3. **Task Management & Automated Archival:** Eisenhower-categorized To-Do board with drag-and-drop reordering, SQLite WAL persistence, and a background daemon that archives completed tasks Mondays @ 2:00 AM PST.
+3. **Task Management & Archival:** Eisenhower-categorized To-Do board with drag-and-drop reordering, SQLite WAL persistence, and on-demand archival of completed tasks.
 4. **Vector PDF Invoice Generator:** Full multi-profile invoice creator with in-memory ReportLab Platypus rendering, client service presets, dynamic filter metrics, and phone normalization.
 5. **Interactive Developer Experience:** Built-in Swagger UI conforming to OpenAPI 3.0 specifications with HTTP Basic Authentication.
 
@@ -106,16 +106,16 @@
 | Directory / File | Description | Environment / Port |
 | :--- | :--- | :--- |
 | **[`app.py`](./app.py)** | Main Flask application entry point with blueprint registrations. | `localhost:5000` / Unix Socket |
-| **[`Monitoring/`](./Monitoring/)** | System telemetry collectors (`collectors/`), process monitors, service probes, and HTML dashboard. | `/monitoring` |
-| **[`TutoringCalculator/`](./TutoringCalculator/)** | Weekly invoicing engine, web dashboard (`/tutoring`), Google APIs integration, and Twilio SMS client. | `/tutoring`, `/api/tutoring/*` |
-| **[`ToDo/`](./ToDo/)** | Categorized task board, drag-and-drop reordering, and Monday 2:00 AM PST auto-archive scheduler. | `/todo`, `/api/tasks`, `/api/categories` |
-| **[`InvoiceGenerator/`](./InvoiceGenerator/)** | In-memory vector PDF invoice builder, client presets, multi-sender directory, and history tracker. | `/invoices`, `/api/invoices/*` |
-| **[`Finance/`](./Finance/)** | Personal financial dashboard with SimpleFIN Bridge, SQLite history, and interactive growth charts. | `/finance`, `/api/finance/*` |
-| **[`swagger/`](./swagger/)** | Interactive OpenAPI 3.0 Swagger documentation console and JSON spec generator. | `/`, `/docs`, `/openapi.json` |
+| **[`modules/Monitor/`](./modules/Monitor/)** | System telemetry collectors (`collectors/`), process monitors, service probes, and HTML dashboard. | `/monitoring` |
+| **[`modules/TutoringCalculator/`](./modules/TutoringCalculator/)** | Weekly invoicing engine, web dashboard (`/tutoring`), Google APIs integration, and Twilio SMS client. | `/tutoring`, `/api/tutoring/*` |
+| **[`modules/ToDo/`](./modules/ToDo/)** | Categorized task board, drag-and-drop reordering, and one-click archival of completed tasks. | `/todo`, `/api/todo/*` |
+| **[`modules/InvoiceGenerator/`](./modules/InvoiceGenerator/)** | In-memory vector PDF invoice builder, client presets, multi-sender directory, and history tracker. | `/invoices`, `/api/invoices/*` |
+| **[`modules/Finance/`](./modules/Finance/)** | Personal financial dashboard with SimpleFIN Bridge, SQLite history, and interactive growth charts. | `/finance`, `/api/finance/*` |
+| **[`modules/Swagger/`](./modules/Swagger/)** | Interactive OpenAPI 3.0 Swagger documentation console and JSON spec generator. | `/`, `/docs`, `/openapi.json` |
 | **[`index/`](./index/)** | HTTP Basic Auth middleware, security checkers, and route protection decorators. | Application middleware |
-| **[`config/`](./config/)** | Environment configuration files, database files (`todo.db`, `invoices.db`), and secret schemas. | Application configuration |
-| **[`css/`](./css/)** | Shared global design system (`shared.css`) with synchronized light/dark palette and navigation tokens. | Global stylesheets |
-| **[`static/`](./static/)** | Static brand assets (`flash.png`, `flash.gif`, favicon). | Web assets |
+| **[`config/`](./config/)** | Environment configuration files and secret schemas. | Application configuration |
+| **[`data/`](./data/)** | Gitignored SQLite databases (`tasks.db`, `invoices.db`, `finance.db`). | Runtime data |
+| **[`index/`](./index/)** | Auth middleware (`index.py`), shared privacy page, and static assets (`index/static/`: `shared.css`, `flash.png`, `flash.gif`). | `/static/*`, `/privacy` |
 | **[`docs/`](./docs/)** | Comprehensive setup runbooks, monitoring architecture, and billing guides. | Documentation repository |
 
 ---
@@ -176,16 +176,33 @@ Monday 12:00 PM PST ───> curl -u "$USER:$PASS" -X POST /api/tutoring/run-s
 
 ## 📝 To-Do Task Management Module
 
-Accessible at `http://localhost:5000/todo`, the To-Do module provides category-based task organization with drag-and-drop sequencing and automated weekly archival.
+Accessible at `http://localhost:5000/todo`, the To-Do module provides category-based task organization with drag-and-drop sequencing and on-demand archival.
 
 * **Eisenhower Categories**: Dynamic, color-accented category cards with live task counters.
 * **Drag-and-Drop Reordering**: Immediate DOM reordering with background persistence to SQLite sort indices.
-* **Monday 2:00 AM PST Archival Scheduler**: A background daemon thread archives all completed tasks weekly, keeping active boards focused while preserving full historical records.
+* **Task Archival**: Completed tasks are archived on demand (`POST /api/todo/archive-completed`), keeping active boards focused while preserving full historical records.
 * **Archival Management**: One-click "Archive Completed", full category archival, and conflict-checked restoration.
 
 ### To-Do Endpoints
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
+| `/todo` | `GET` | Interactive To-Do board interface. |
+| `GET /api/todo/items` | `GET` | Fetches active or archived tasks (`?status=active|archived`). |
+| `POST /api/todo/items` | `POST` | Adds a task to a category (automatically placed above completed items). |
+| `PATCH /api/todo/items/<id>` | `PATCH` | Updates task text, category, completion state, day tag, or size tag. |
+| `DELETE /api/todo/items/<id>` | `DELETE`| Permanently deletes an individual task. |
+| `POST /api/todo/reorder` | `POST` | Persists reordered task order within a category. |
+| `POST /api/todo/archive-completed` | `POST`| Archives all completed tasks immediately. |
+| `POST /api/todo/items/<id>/restore` | `POST`| Restores an archived task back to the active board. |
+| `GET /api/todo/categories` | `GET` | Lists all active categories. |
+| `POST /api/todo/categories` | `POST` | Creates a new category with duplicate-name detection. |
+| `PATCH /api/todo/categories/<id>` | `PATCH` | Updates category name, color theme, status text, or sort order. |
+| `POST /api/todo/categories/<id>/archive` | `POST`| Archives category and all associated tasks. |
+| `POST /api/todo/categories/<id>/restore` | `POST`| Restores an archived category. |
+
+See [`modules/ToDo/README.md`](modules/ToDo/README.md) for the complete list.
+
+--- | :--- | :--- |
 | `/todo` | `GET` | Interactive To-Do board interface. |
 | `GET /api/tasks` | `GET` | Fetches active or archived tasks (`?status=active|archived`). |
 | `POST /api/tasks` | `POST` | Adds a task to a category (automatically placed above completed items). |
@@ -243,15 +260,20 @@ Accessible at `http://localhost:5000/invoices` (or `/InvoiceGenerator/invoices`)
 All test suites are organized into dedicated `tests/` directories within each module:
 
 ```
-├── InvoiceGenerator/tests/
+├── modules/InvoiceGenerator/tests/
 │   ├── test_invoices.py       # DB, CRUD, calculations, and vector PDF bytes
-│   └── test_integration.py    # Flask route registration and OpenAPI verification
-├── ToDo/tests/
-│   └── test_todo.py           # Task/category CRUD, reordering, and Monday auto-archive
-├── TutoringCalculator/tests/
-│   └── test_tutoring_calc.py  # Hours parsing, calendar scraping, and safeguards
-└── Monitoring/tests/
-    └── test_monitoring.py     # Hardware telemetry collectors and diagnostics
+│   ├── test_integration.py    # Flask route registration and OpenAPI verification
+│   └── test_invoice_isolated.py # Calculations, filters, recurring schedules, all routes (temp DB)
+├── modules/ToDo/tests/
+│   ├── test_todo.py           # Task/category CRUD, reordering, tags, and manual archival
+│   └── test_todo_isolated.py  # Ordering rules, validation, migrations, all routes (temp DB)
+├── modules/TutoringCalculator/tests/
+│   ├── test_tutoring_calc.py  # Hours parsing, calendar scraping, and safeguards
+│   ├── test_tutoring_apis.py  # Config, Twilio, Gmail, OAuth, Calendar, Drive/Sheets helpers
+│   └── test_tutoring_routes.py # Every HTTP endpoint (Google and Twilio mocked)
+└── modules/Monitor/tests/
+    ├── test_monitoring.py     # Smoke tests against the live host
+    └── test_monitor_logic.py  # Mocked collectors, probes, diagnostics verdicts, routes
 ```
 
 ### Run All Tests Across the Repository
@@ -260,20 +282,16 @@ All test suites are organized into dedicated `tests/` directories within each mo
 .venv/bin/python -m unittest discover -s . -p "test_*.py"
 ```
 
-### Run Tests for a Specific Module
+### Run Tests
 ```bash
-# Invoice Generator
-.venv/bin/python -m unittest discover -s InvoiceGenerator/tests -p "test_*.py"
+# Every module at once
+.venv/bin/python -m unittest discover -s modules -t . -p "test_*.py"
 
-# To-Do Board
-.venv/bin/python -m unittest discover -s ToDo/tests -p "test_*.py"
-
-# Tutoring Calculator
-.venv/bin/python -m unittest discover -s TutoringCalculator/tests -p "test_*.py"
-
-# Monitoring
-.venv/bin/python -m unittest discover -s Monitoring/tests -p "test_*.py"
+# One module (Finance, InvoiceGenerator, Monitor, Swagger, ToDo, TutoringCalculator)
+.venv/bin/python -m unittest discover -s modules/Finance/tests -p "test_*.py"
 ```
+
+Per-module notes on what each suite covers, and which ones touch the real databases, are in `docs/<Module>/testing.md`.
 
 ---
 
@@ -288,28 +306,48 @@ Explore the following modular documentation files for end-to-end setup and archi
 * **[Nginx Template Configuration](docs/setup/nginx.conf.template)** — Production-tested Nginx reverse-proxy template blocks (Unix socket, static + API, and local port).
 * **[Setup Reference Specification](docs/setup/setup.conf)** — Master network configuration and subdomain routing definitions.
 
-### 🖥️ System Telemetry & Monitoring (`docs/monitoring/`)
-* **[Monitoring Architecture & Endpoints](docs/monitoring/architecture.md)** — Non-blocking telemetry collectors, multi-threaded socket probes, memory/CPU metrics, and REST API specification.
-* **[Services Matrix & Probes](docs/monitoring/services-matrix.md)** — Detailed specification for the 11 monitored services, port mappings, and alert threshold triggers.
-* **[Dashboard Operations Guide](docs/monitoring/dashboard-guide.md)** — Visual design guide, process table sort controls, refresh intervals, and diagnostic audit suite usage.
+### 🖥️ Monitor (`docs/Monitor/`)
+* **[Architecture & Endpoints](docs/Monitor/architecture.md)** — Non-blocking telemetry collectors, multi-threaded socket probes, memory/CPU metrics, and REST API specification.
+* **[Services Matrix & Probes](docs/Monitor/services-matrix.md)** — The 11 monitored services, port mappings, and alert thresholds.
+* **[Dashboard Operations Guide](docs/Monitor/dashboard-guide.md)** — Visual design guide, process table sort controls, refresh intervals, and diagnostic audit suite usage.
+* **[Testing](docs/Monitor/testing.md)**
 
-### 🎓 Tutoring Invoicing Pipeline (`docs/tutoring-calc/`)
-* **[Billing Workflow & Endpoints](docs/tutoring-calc/billing-workflow.md)** — Weekly billing cycle, calendar scraping mechanics, rate lookups, and spreadsheet updates.
-* **[Approval Safeguards & SMS Text Dispatch](docs/tutoring-calc/approval-safeguard.md)** — Human-in-the-loop review, `CALCULATED` title safety gate, Twilio SMS text dispatch, and audit logging.
-* **[Automation & Google OAuth 2.0 Setup](docs/tutoring-calc/automation-and-oauth.md)** — Crontab automation schedules, script workflows, and Google OAuth 2.0 token management.
+### 🎓 TutoringCalculator (`docs/TutoringCalculator/`)
+* **[Billing Workflow & Endpoints](docs/TutoringCalculator/billing-workflow.md)** — Weekly billing cycle, calendar scraping mechanics, rate lookups, and spreadsheet updates.
+* **[Approval Safeguards & SMS Text Dispatch](docs/TutoringCalculator/approval-safeguard.md)** — Human-in-the-loop review, `CALCULATED` title safety gate, Twilio SMS dispatch, and audit logging.
+* **[Automation & Google OAuth 2.0 Setup](docs/TutoringCalculator/automation-and-oauth.md)** — Crontab schedules and Google OAuth 2.0 token management.
+* **[Testing](docs/TutoringCalculator/testing.md)**
+
+### ✅ ToDo (`docs/ToDo/`)
+* **[Architecture](docs/ToDo/architecture.md)** — Data model, ordering rules, archiving behavior, categories, and tags.
+* **[Testing](docs/ToDo/testing.md)**
+
+### 🧾 InvoiceGenerator (`docs/InvoiceGenerator/`)
+* **[Architecture](docs/InvoiceGenerator/architecture.md)** — Invoice lifecycle, totals, profiles, and presets.
+* **[Recurring Invoices](docs/InvoiceGenerator/recurring-invoices.md)** — Schedule types, idempotency, and the daily cron run.
+* **[Testing](docs/InvoiceGenerator/testing.md)**
+
+### 💰 Finance (`docs/Finance/`)
+* **[Architecture](docs/Finance/architecture.md)** — Schema, account types, snapshots and history, manual accounts, budget, and secrets.
+* **[SimpleFIN Connection & Sync](docs/Finance/simplefin-sync.md)** — Claim flow, account matching, and balance change tracking.
+* **[Testing](docs/Finance/testing.md)**
+
+### 📖 Swagger (`docs/Swagger/`)
+* **[Overview](docs/Swagger/overview.md)** — Routes, how the spec is maintained, and known documentation gaps.
+* **[Testing](docs/Swagger/testing.md)**
 
 ---
 
 ## 🔗 Internal Module References
 
 Each package maintains its own internal technical README:
-* **[Invoice Generator Documentation](InvoiceGenerator/README.md)** — Vector PDF Platypus architecture, database schema, presets, and route reference.
-* **[Finance Module Documentation](Finance/README.md)** — SimpleFIN Bridge integration, SQLite history engine, Net Worth tracking, and interactive growth charts.
-* **[To-Do Module Documentation](ToDo/README.md)** — Category schema, Eisenhower sorting, drag-and-drop indexing, and the Monday 2 AM auto-archive daemon.
-* **[Tutoring Calculator Documentation](TutoringCalculator/README.md)** — Google Drive/Sheets integration, calendar hour parsing, Twilio SMS safeguards, and CLI scripts.
-* **[Monitoring Module Documentation](Monitoring/README.md)** — Telemetry package, collector functions, process table sort controls, and UI templates.
-* **[Swagger & OpenAPI Documentation](swagger/README.md)** — OpenAPI 3.0 specification generator, Swagger UI console, and schema definitions.
-* **[Index & Security Documentation](index/README.md)** — HTTP Basic Authentication middleware, secret credentials resolution, and path whitelist rules.
+* **[Invoice Generator](modules/InvoiceGenerator/README.md)** — Vector PDF Platypus architecture, database schema, presets, and route reference.
+* **[Finance](modules/Finance/README.md)** — SimpleFIN Bridge integration, SQLite history engine, net worth tracking, and growth charts.
+* **[To-Do](modules/ToDo/README.md)** — Category schema, task ordering, drag-and-drop indexing, and endpoints.
+* **[Tutoring Calculator](modules/TutoringCalculator/README.md)** — Google Drive/Sheets integration, calendar hour parsing, and Twilio SMS safeguards.
+* **[Monitor](modules/Monitor/README.md)** — Telemetry package, collector functions, process table sort controls, and the dashboard.
+* **[Swagger](modules/Swagger/README.md)** — OpenAPI 3.0 specification and Swagger UI console.
+* **[Index & Security](index/README.md)** — HTTP Basic Authentication middleware, secret credentials resolution, and path whitelist rules.
 
 ---
 
@@ -324,9 +362,9 @@ Configuration parameters and secret credentials are kept strictly isolated:
    * Stores Swagger Basic Auth credentials (`USERNAME` / `PASSWORD`) and `TWILIO_API_SECRET`.
 3. **`config/StephenG753-OAuth.json`** *(Ignored by Git)*:
    * Client secret credentials file downloaded from Google Cloud Console.
-4. **`TutoringCalculator/keys/token.pickle`** *(Ignored by Git)*:
+4. **`modules/TutoringCalculator/keys/token.pickle`** *(Ignored by Git)*:
    * Serialized Google OAuth 2.0 offline access token and auto-refresh token.
-5. **`config/todo.db` & `config/invoices.db`** *(Ignored by Git)*:
+5. **`data/tasks.db` & `data/invoices.db`** *(Ignored by Git)*:
    * Local SQLite Write-Ahead Logging databases for task management and invoice tracking.
 
 ---
