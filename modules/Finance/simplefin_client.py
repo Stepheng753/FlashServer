@@ -450,6 +450,10 @@ def sync_simplefin_accounts() -> dict:
         total_checked = len(sf_accounts)
         any_account_changed = any(d["has_balance_change"] for d in sync_details)
 
+        # Net worth before this sync touches any balance, so the change is measured
+        # from the previous sync (not from a state that already includes these updates)
+        old_nw = float(get_summary().get("net_worth") or 0.0)
+
         # Upsert accounts to DB
         # Rule: If 0 accounts changed upstream, preserve existing balance_change (do not set +$0.00 on everything)
         # If at least 1 account changed, update changed accounts with their difference and unchanged accounts with 0.0
@@ -494,11 +498,7 @@ def sync_simplefin_accounts() -> dict:
         # Compute net worth change if accounts changed; otherwise preserve previous
         net_worth_change = None
         if any_account_changed:
-            old_summary = get_summary()
-            old_nw = float(old_summary.get("net_worth") or 0.0)
-            # Re-fetch fresh summary after upsert
-            fresh_summary = get_summary()
-            new_nw = float(fresh_summary.get("net_worth") or 0.0)
+            new_nw = float(get_summary().get("net_worth") or 0.0)
             net_worth_change = round(new_nw - old_nw, 2)
 
         snapshot_id = record_snapshot(

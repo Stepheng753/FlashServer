@@ -469,6 +469,30 @@ class TestSimpleFinSync(FinanceDbTestCase):
         self.assertEqual(acc["balance_change"], 75.25)
         self.assertEqual(len(finance_db.get_accounts()), 1)
 
+    def test_net_worth_change_is_the_difference_between_the_last_two_syncs(self):
+        def payload(balance):
+            return FakeBridgeResponse(200, {"accounts": [
+                {"id": "ACT-1", "name": "Everyday Checking", "balance": balance, "org": {"name": "Test Bank"}}]})
+
+        self.sync(payload(1000))                                    # first sync: account is new
+        self.assertEqual(finance_db.get_summary()["net_worth_change"], 0.0)
+        self.sync(payload(1250.50))                                 # second sync: balance moved
+        self.assertEqual(finance_db.get_summary()["net_worth"], 1250.5)
+        self.assertEqual(finance_db.get_summary()["net_worth_change"], 250.5)
+        self.sync(payload(1250.50))                                 # nothing changed upstream
+        self.assertEqual(finance_db.get_summary()["net_worth_change"], 250.5)
+        self.sync(payload(1000))                                    # drops back
+        self.assertEqual(finance_db.get_summary()["net_worth_change"], -250.5)
+
+    def test_net_worth_change_sums_every_account_that_moved(self):
+        def payload(a, b):
+            return FakeBridgeResponse(200, {"accounts": [
+                {"id": "A", "name": "Everyday Checking", "balance": a, "org": {"name": "Bank"}},
+                {"id": "B", "name": "Freedom Visa", "balance": b, "org": {"name": "Chase"}}]})
+        self.sync(payload(1000, -100))
+        self.sync(payload(1100, -400))       # +100 cash, -300 more card debt
+        self.assertEqual(finance_db.get_summary()["net_worth_change"], -200.0)
+
     def test_sync_positive_mortgage_is_stored_as_liability(self):
         payload = {"accounts": [{"id": "M1", "name": "Home Mortgage", "balance": 250000, "org": {"name": "Lender"}}]}
         self.sync(FakeBridgeResponse(200, payload))

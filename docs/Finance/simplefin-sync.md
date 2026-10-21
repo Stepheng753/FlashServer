@@ -31,7 +31,8 @@ If you already have an access URL, send `{"access_url": "..."}` instead and it i
 8. **Balance change tracking**:
    * If at least one balance changed, changed accounts store `balance_change = new - old` and every other account is set to `0.0`.
    * If nothing changed, existing `balance_change` values are left alone, so the dashboard does not show `+$0.00` everywhere after a no-op sync.
-9. Record a snapshot and store `simplefin_last_sync`.
+9. **Net worth change** (the number next to Net Worth on the dashboard): when at least one balance changed, it is the net worth after this sync minus the net worth just before it. A sync where nothing changed keeps the previous value, so the figure always reflects the last two syncs where something moved. It is stored on the snapshot, and edits to manual accounts carry it forward unchanged.
+10. Record a snapshot and store `simplefin_last_sync`.
 
 The per-account `last_synced` value is the bridge's `balance-date` when present.
 
