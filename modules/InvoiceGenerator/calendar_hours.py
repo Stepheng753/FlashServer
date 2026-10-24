@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import date, datetime, timedelta
 
 import pytz
@@ -9,6 +10,7 @@ from modules.TutoringCalculator.apis.google_auth import get_credentials
 from modules.TutoringCalculator.config import get_config
 from .config import APP_TIMEZONE
 
+HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
 RANGE_KEYS = ("week", "month", "last_month", "year", "custom")
 
 
@@ -17,9 +19,13 @@ class CalendarAuthError(Exception):
 
 
 def load_calendar_sources():
-    """Returns [{name, calendar_id}] from HOURS_CALENDARS in config/config.json."""
+    """Returns [{name, calendar_id, color?}] from HOURS_CALENDARS in config/config.json."""
     sources = get_config().get("HOURS_CALENDARS", [])
     return [s for s in sources if s.get("name") and s.get("calendar_id")]
+
+
+def _valid_color(color):
+    return color if isinstance(color, str) and HEX_COLOR.match(color) else None
 
 
 def get_service():
@@ -159,7 +165,7 @@ def calculate_hours(range_key, custom_start=None, custom_end=None, sources=None,
     if sources:
         service = service or get_service()
     for source in sources:
-        row = {"name": source["name"], "hours": 0, "event_count": 0, "events": []}
+        row = {"name": source["name"], "color": _valid_color(source.get("color")), "hours": 0, "event_count": 0, "events": []}
         try:
             events = fetch_events(service, source["calendar_id"], start, end)
             counted = busy_events(events, start, end)

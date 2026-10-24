@@ -80,6 +80,20 @@ class LoadSourcesTests(unittest.TestCase):
             self.assertEqual(ch.load_calendar_sources(), [{"name": "TIP", "calendar_id": "stephen@torreypinesconsulting.com"}])
 
 
+class ColorTests(unittest.TestCase):
+
+    def test_valid_hex_passes_through_and_junk_is_dropped(self):
+        self.assertEqual(ch._valid_color("#55b080"), "#55b080")
+        for bad in ("red", "#abc", "url(x)", "#55b08g", None, 5):
+            self.assertIsNone(ch._valid_color(bad))
+
+    def test_calculate_hours_returns_configured_color(self):
+        sources = [{"name": "A", "calendar_id": "a@x.com", "color": "#bc2b2e"}, {"name": "B", "calendar_id": "b@x.com"}]
+        with patch.object(ch, "fetch_events", return_value=[]):
+            rows = ch.calculate_hours("month", sources=sources, service=MagicMock())["calendars"]
+        self.assertEqual([r["color"] for r in rows], ["#bc2b2e", None])
+
+
 class FetchEventsTests(unittest.TestCase):
 
     def test_follows_pagination_and_expands_recurrences(self):

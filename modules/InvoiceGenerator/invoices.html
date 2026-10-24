@@ -2991,9 +2991,14 @@
       return n;
     }
 
-    function hDot(i) {
+    // A calendar's configured color wins; otherwise fall back to the theme palette by position
+    function hColor(c, i) {
+      return c.color || HOURS_SERIES[i % HOURS_SERIES.length];
+    }
+
+    function hDot(c, i) {
       const d = hEl('span', 'series-dot');
-      d.style.background = HOURS_SERIES[i % HOURS_SERIES.length];
+      d.style.background = hColor(c, i);
       return d;
     }
 
@@ -3060,7 +3065,7 @@
       data.calendars.forEach((c, i) => {
         const card = hEl('div', 'metric-card');
         const title = hEl('div', 'metric-title hours-metric-title');
-        title.appendChild(hDot(i));
+        title.appendChild(hDot(c, i));
         title.appendChild(hEl('span', '', c.name));
         card.appendChild(title);
         if (c.error) {
@@ -3072,7 +3077,7 @@
           const track = hEl('div', 'share-track');
           const fill = hEl('div', 'share-fill');
           fill.style.width = `${share}%`;
-          fill.style.background = HOURS_SERIES[i % HOURS_SERIES.length];
+          fill.style.background = hColor(c, i);
           track.appendChild(fill);
           card.appendChild(track);
         }
@@ -3124,7 +3129,7 @@
       const ok = data.calendars.map((c, i) => ({ c, i })).filter(x => !x.c.error);
       ok.forEach(({ c, i }) => {
         const item = hEl('span');
-        item.appendChild(hDot(i));
+        item.appendChild(hDot(c, i));
         item.appendChild(document.createTextNode(c.name));
         legend.appendChild(item);
       });
@@ -3170,7 +3175,7 @@
           if (v <= 0) return;
           const seg = hEl('div', 'hours-seg' + (si === topIdx ? ' top' : ''));
           seg.style.height = `${(v / top) * 100}%`;
-          seg.style.background = HOURS_SERIES[ok[si].i % HOURS_SERIES.length];
+          seg.style.background = hColor(ok[si].c, ok[si].i);
           col.appendChild(seg);
         });
         col.addEventListener('mousemove', ev => showHoursTip(ev, b.title, ok, vals, totals[bi]));
@@ -3195,7 +3200,7 @@
       ok.forEach(({ c, i }, si) => {
         const row = hEl('div', 'tt-row');
         const name = hEl('span', 'tt-name');
-        name.appendChild(hDot(i));
+        name.appendChild(hDot(c, i));
         name.appendChild(document.createTextNode(c.name));
         row.appendChild(name);
         row.appendChild(hEl('span', 'tt-val', vals[si].toFixed(2)));
@@ -3222,7 +3227,7 @@
       data.calendars.forEach((c, i) => {
         const det = hEl('details', 'hours-details');
         const sum = hEl('summary');
-        sum.appendChild(hDot(i));
+        sum.appendChild(hDot(c, i));
         sum.appendChild(hEl('span', '', c.name));
         sum.appendChild(hEl('span', 'sum-meta', c.error ? 'error' : `${c.event_count} events - ${c.hours.toFixed(2)} h`));
         det.appendChild(sum);

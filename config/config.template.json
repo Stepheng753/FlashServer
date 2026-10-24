@@ -1,17 +1,17 @@
 {
-  "GOOGLE_CALENDAR_ID": "your_calendar_id@group.calendar.google.com",
-  "PAY_PARENT_FOLDER_ID": "your_parent_drive_folder_id",
-  "TEMPLATE_SHEET_ID": "your_master_template_sheet_id",
-  "TWILIO_ACCOUNT_SID": "your_twilio_account_sid",
-  "TWILIO_API_KEY_SID": "your_twilio_api_key_sid",
-  "TWILIO_FROM_NUMBER": "+10000000000",
-  "NOTIFICATION_EMAIL": "your_email@example.com",
-  "APP_HOST": "https://dev.example.com",
-  "USERNAME": "StephenG753",
-  "OAUTH_FILE": "StephenG753-OAuth.json",
-  "HOURS_CALENDARS": [
-    {"name": "PWL", "calendar_id": "your_pwl_calendar_id"},
-    {"name": "TIP", "calendar_id": "your_tip_calendar_id"},
-    {"name": "GuidantMSO", "calendar_id": "your_guidantmso_calendar_id"}
-  ]
+	"GOOGLE_CALENDAR_ID": "your_calendar_id@group.calendar.google.com",
+	"PAY_PARENT_FOLDER_ID": "your_parent_drive_folder_id",
+	"TEMPLATE_SHEET_ID": "your_master_template_sheet_id",
+	"TWILIO_ACCOUNT_SID": "your_twilio_account_sid",
+	"TWILIO_API_KEY_SID": "your_twilio_api_key_sid",
+	"TWILIO_FROM_NUMBER": "+10000000000",
+	"NOTIFICATION_EMAIL": "your_email@example.com",
+	"APP_HOST": "https://dev.example.com",
+	"USERNAME": "StephenG753",
+	"OAUTH_FILE": "StephenG753-OAuth.json",
+	"HOURS_CALENDARS": [
+		{ "name": "A", "calendar_id": "AID", "color": "#55b080" },
+		{ "name": "B", "calendar_id": "BID", "color": "#a479b1" },
+		{ "name": "C", "calendar_id": "CID", "color": "#e7ba51" }
+	]
 }
