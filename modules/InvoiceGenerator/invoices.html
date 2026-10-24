@@ -487,6 +487,295 @@
       font-size: 0.8rem;
     }
 
+    /* CALC HOURS */
+    #tab-hours {
+      --series-1: #2a78d6;
+      --series-2: #eb6834;
+      --series-3: #1baf7a;
+      --series-4: #eda100;
+    }
+
+    [data-theme="dark"] #tab-hours {
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --series-3: #199e70;
+      --series-4: #c98500;
+    }
+
+    .hours-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 20px;
+    }
+
+    .seg-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .seg-btn {
+      padding: 7px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .seg-btn:hover {
+      color: var(--text-main);
+      background: var(--accent);
+    }
+
+    .seg-btn.active {
+      color: #ffffff;
+      background: var(--primary-blue);
+    }
+
+    .hours-custom {
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hours-custom.open {
+      display: flex;
+    }
+
+    .hours-range-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .hours-metric-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .series-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex: none;
+    }
+
+    .share-track {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--accent);
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .share-fill {
+      height: 100%;
+      border-radius: 2px;
+    }
+
+    .hours-error {
+      font-size: 0.82rem;
+      color: var(--destructive);
+    }
+
+    .hours-chart-card {
+      position: relative;
+    }
+
+    .hours-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+
+    .hours-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hours-chart {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      margin-top: 8px;
+    }
+
+    .hours-y {
+      position: relative;
+      height: 220px;
+    }
+
+    .hours-y span {
+      position: absolute;
+      right: 8px;
+      transform: translateY(50%);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .hours-plot {
+      position: relative;
+      height: 220px;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .hours-gridline {
+      position: absolute;
+      left: 0;
+      right: 0;
+      border-top: 1px solid var(--card-border);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .hours-col {
+      position: relative;
+      flex: 1 1 0;
+      min-width: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      cursor: default;
+    }
+
+    .hours-col:hover {
+      background: var(--accent);
+    }
+
+    .hours-seg {
+      margin-top: 2px;
+      min-height: 2px;
+    }
+
+    .hours-seg.top {
+      border-radius: 4px 4px 0 0;
+    }
+
+    .hours-x {
+      grid-column: 2;
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .hours-x span {
+      flex: 1 1 0;
+      min-width: 0;
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: visible;
+    }
+
+    .hours-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: var(--text-muted);
+      padding: 70px 0;
+    }
+
+    .hours-tooltip {
+      position: fixed;
+      z-index: 50;
+      pointer-events: none;
+      background: var(--popover);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      box-shadow: var(--card-hover-shadow);
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      min-width: 150px;
+      display: none;
+    }
+
+    .hours-tooltip .tt-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .hours-tooltip .tt-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: space-between;
+    }
+
+    .hours-tooltip .tt-row .tt-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+    }
+
+    .hours-tooltip .tt-row .tt-val {
+      font-family: var(--font-mono);
+    }
+
+    .hours-tooltip .tt-total {
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px solid var(--card-border);
+      font-weight: 700;
+    }
+
+    .hours-details {
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      background: var(--card-bg);
+    }
+
+    .hours-details summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .hours-details summary .sum-meta {
+      margin-left: auto;
+      font-weight: 500;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .hours-details .data-table {
+      border-top: 1px solid var(--card-border);
+    }
+
+    .hours-events-empty {
+      padding: 12px 16px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--card-border);
+    }
+
     /* INVOICE BUILDER FORM */
     .builder-grid {
       display: grid;
@@ -915,6 +1204,15 @@
         </svg>
         Clients & Senders
       </button>
+      <button class="tab-btn" data-tab="tab-hours">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        Calc Hours
+      </button>
     </div>
 
     <!-- ===================================================================
@@ -1285,6 +1583,46 @@
     <!-- ===================================================================
          TAB 4: CLIENTS & SENDERS MANAGEMENT
          =================================================================== -->
+    <div id="tab-hours" class="tab-pane" style="display: none;">
+
+      <!-- RANGE CONTROLS -->
+      <div class="hours-toolbar">
+        <div class="seg-group" id="hours-range-group" role="group" aria-label="Date range">
+          <button type="button" class="seg-btn" data-range="week">This Week</button>
+          <button type="button" class="seg-btn active" data-range="month">This Month</button>
+          <button type="button" class="seg-btn" data-range="last_month">Last Month</button>
+          <button type="button" class="seg-btn" data-range="year">This Year</button>
+          <button type="button" class="seg-btn" data-range="custom">Custom</button>
+        </div>
+        <div id="hours-custom" class="hours-custom">
+          <input type="date" id="hours-start" class="filter-select" title="Start date" />
+          <span style="color: var(--text-muted);">to</span>
+          <input type="date" id="hours-end" class="filter-select" title="End date" />
+          <button type="button" id="btn-calc-hours" class="btn btn-primary btn-sm">Apply</button>
+        </div>
+        <div id="hours-range-label" class="hours-range-label"></div>
+      </div>
+
+      <!-- TOTAL + PER-CALENDAR CARDS -->
+      <div id="hours-cards" class="metrics-grid"></div>
+
+      <!-- HOURS OVER TIME -->
+      <div class="form-card hours-chart-card">
+        <div class="card-title" style="flex-wrap: wrap; gap: 12px;">
+          <span id="hours-chart-title">Hours per Day</span>
+          <div id="hours-legend" class="hours-legend"></div>
+        </div>
+        <div id="hours-chart" class="hours-chart"></div>
+        <div id="hours-tooltip" class="hours-tooltip"></div>
+      </div>
+
+      <!-- EVENTS BEHIND THE TOTALS -->
+      <div class="form-card">
+        <div class="card-title">Events</div>
+        <div id="hours-events"></div>
+      </div>
+    </div>
+
     <div id="tab-entities" class="tab-pane" style="display: none;">
 
       <div class="entities-grid">
@@ -2634,7 +2972,299 @@
       if (tabId === 'tab-presets') {
         loadPresets();
       }
+      if (tabId === 'tab-hours') {
+        loadHours();
+      }
     }
+
+    // -----------------------------------------------------------------------
+    // CALC HOURS
+    // -----------------------------------------------------------------------
+    const HOURS_SERIES = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 'var(--series-4)'];
+    let hoursRange = 'month';
+    let hoursData = null;
+
+    function hEl(tag, cls, text) {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text !== undefined) n.textContent = text;
+      return n;
+    }
+
+    function hDot(i) {
+      const d = hEl('span', 'series-dot');
+      d.style.background = HOURS_SERIES[i % HOURS_SERIES.length];
+      return d;
+    }
+
+    function hDate(iso, opts) {
+      return new Date(iso + 'T00:00:00').toLocaleDateString(undefined, opts);
+    }
+
+    function hRangeLabel(range) {
+      const o = { month: 'short', day: 'numeric' };
+      const y = { year: 'numeric' };
+      return `${hDate(range.start, o)} - ${hDate(range.end, { ...o, ...y })}`;
+    }
+
+    function setHoursRange(key) {
+      hoursRange = key;
+      document.querySelectorAll('#hours-range-group .seg-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.range === key);
+      });
+      document.getElementById('hours-custom').classList.toggle('open', key === 'custom');
+    }
+
+    async function loadHours() {
+      const params = new URLSearchParams({ range: hoursRange });
+      if (hoursRange === 'custom') {
+        params.set('start', document.getElementById('hours-start').value);
+        params.set('end', document.getElementById('hours-end').value);
+      }
+      const cards = document.getElementById('hours-cards');
+      cards.replaceChildren(hEl('div', 'metric-footer', 'Loading...'));
+      try {
+        const res = await fetch(`/api/invoices/hours?${params.toString()}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to load hours');
+        hoursData = data;
+        document.getElementById('hours-range-label').textContent = hRangeLabel(data.range);
+        renderHoursCards(data);
+        renderHoursChart(data);
+        renderHoursEvents(data);
+      } catch (err) {
+        hoursData = null;
+        cards.replaceChildren(hEl('div', 'hours-error', err.message));
+        document.getElementById('hours-chart').replaceChildren();
+        document.getElementById('hours-legend').replaceChildren();
+        document.getElementById('hours-events').replaceChildren();
+      }
+    }
+
+    function renderHoursCards(data) {
+      const cards = document.getElementById('hours-cards');
+      cards.replaceChildren();
+      const totalCount = data.calendars.reduce((n, c) => n + c.event_count, 0);
+
+      const total = hEl('div', 'metric-card');
+      total.appendChild(hEl('div', 'metric-title', 'Total Hours'));
+      total.appendChild(hEl('div', 'metric-value', data.total_hours.toFixed(2)));
+      total.appendChild(hEl('div', 'metric-footer', `${totalCount} busy events`));
+      cards.appendChild(total);
+
+      if (data.calendars.length === 0) {
+        cards.appendChild(hEl('div', 'hours-error', 'No calendars configured. Add HOURS_CALENDARS to config/config.json (IDs are listed at /api/invoices/hours/calendars).'));
+        return;
+      }
+
+      data.calendars.forEach((c, i) => {
+        const card = hEl('div', 'metric-card');
+        const title = hEl('div', 'metric-title hours-metric-title');
+        title.appendChild(hDot(i));
+        title.appendChild(hEl('span', '', c.name));
+        card.appendChild(title);
+        if (c.error) {
+          card.appendChild(hEl('div', 'hours-error', c.error));
+        } else {
+          const share = data.total_hours > 0 ? (c.hours / data.total_hours) * 100 : 0;
+          card.appendChild(hEl('div', 'metric-value', c.hours.toFixed(2)));
+          card.appendChild(hEl('div', 'metric-footer', `${c.event_count} events - ${share.toFixed(0)}% of total`));
+          const track = hEl('div', 'share-track');
+          const fill = hEl('div', 'share-fill');
+          fill.style.width = `${share}%`;
+          fill.style.background = HOURS_SERIES[i % HOURS_SERIES.length];
+          track.appendChild(fill);
+          card.appendChild(track);
+        }
+        cards.appendChild(card);
+      });
+    }
+
+    function hoursBuckets(range) {
+      const start = new Date(range.start + 'T00:00:00Z');
+      const end = new Date(range.end + 'T00:00:00Z');
+      const days = Math.round((end - start) / 86400000) + 1;
+      const monthly = days > 62;
+      const buckets = [];
+      if (monthly) {
+        const d = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
+        while (d <= end) {
+          const key = d.toISOString().slice(0, 7);
+          buckets.push({ key, label: d.toLocaleDateString(undefined, { month: 'short', timeZone: 'UTC' }), title: d.toLocaleDateString(undefined, { month: 'long', year: 'numeric', timeZone: 'UTC' }) });
+          d.setUTCMonth(d.getUTCMonth() + 1);
+        }
+      } else {
+        const d = new Date(start);
+        while (d <= end) {
+          const key = d.toISOString().slice(0, 10);
+          const label = days <= 7
+            ? d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', timeZone: 'UTC' })
+            : String(d.getUTCDate());
+          buckets.push({ key, label, title: d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }) });
+          d.setUTCDate(d.getUTCDate() + 1);
+        }
+      }
+      return { buckets, monthly };
+    }
+
+    function niceCeil(max) {
+      if (max <= 0) return 1;
+      const pow = Math.pow(10, Math.floor(Math.log10(max)));
+      for (const m of [1, 2, 2.5, 5, 10]) {
+        if (m * pow >= max) return m * pow;
+      }
+      return 10 * pow;
+    }
+
+    function renderHoursChart(data) {
+      const chart = document.getElementById('hours-chart');
+      const legend = document.getElementById('hours-legend');
+      chart.replaceChildren();
+      legend.replaceChildren();
+      const ok = data.calendars.map((c, i) => ({ c, i })).filter(x => !x.c.error);
+      ok.forEach(({ c, i }) => {
+        const item = hEl('span');
+        item.appendChild(hDot(i));
+        item.appendChild(document.createTextNode(c.name));
+        legend.appendChild(item);
+      });
+
+      const { buckets, monthly } = hoursBuckets(data.range);
+      document.getElementById('hours-chart-title').textContent = monthly ? 'Hours per Month' : 'Hours per Day';
+      const byKey = {};
+      buckets.forEach(b => { byKey[b.key] = ok.map(() => 0); });
+      ok.forEach(({ c }, si) => {
+        c.events.forEach(e => {
+          const key = monthly ? e.date.slice(0, 7) : e.date;
+          if (byKey[key]) byKey[key][si] += e.minutes / 60;
+        });
+      });
+
+      const totals = buckets.map(b => byKey[b.key].reduce((a, v) => a + v, 0));
+      if (Math.max(0, ...totals) === 0) {
+        chart.appendChild(hEl('div', 'hours-empty', 'No busy events in this range.'));
+        return;
+      }
+      const top = niceCeil(Math.max(...totals));
+
+      const yAxis = hEl('div', 'hours-y');
+      const plot = hEl('div', 'hours-plot');
+      for (let t = 0; t <= 4; t++) {
+        const frac = t / 4;
+        const label = hEl('span', '', String(+(top * frac).toFixed(2)));
+        label.style.bottom = `${frac * 100}%`;
+        yAxis.appendChild(label);
+        if (t > 0) {
+          const line = hEl('div', 'hours-gridline');
+          line.style.bottom = `${frac * 100}%`;
+          plot.appendChild(line);
+        }
+      }
+
+      buckets.forEach((b, bi) => {
+        const col = hEl('div', 'hours-col');
+        const vals = byKey[b.key];
+        let topIdx = -1;
+        vals.forEach((v, si) => { if (v > 0) topIdx = si; });
+        vals.forEach((v, si) => {
+          if (v <= 0) return;
+          const seg = hEl('div', 'hours-seg' + (si === topIdx ? ' top' : ''));
+          seg.style.height = `${(v / top) * 100}%`;
+          seg.style.background = HOURS_SERIES[ok[si].i % HOURS_SERIES.length];
+          col.appendChild(seg);
+        });
+        col.addEventListener('mousemove', ev => showHoursTip(ev, b.title, ok, vals, totals[bi]));
+        col.addEventListener('mouseleave', hideHoursTip);
+        plot.appendChild(col);
+      });
+
+      const xAxis = hEl('div', 'hours-x');
+      const step = Math.max(1, Math.ceil(buckets.length / 16));
+      buckets.forEach((b, bi) => {
+        xAxis.appendChild(hEl('span', '', bi % step === 0 ? b.label : ''));
+      });
+
+      chart.appendChild(yAxis);
+      chart.appendChild(plot);
+      chart.appendChild(xAxis);
+    }
+
+    function showHoursTip(ev, title, ok, vals, total) {
+      const tip = document.getElementById('hours-tooltip');
+      tip.replaceChildren(hEl('div', 'tt-title', title));
+      ok.forEach(({ c, i }, si) => {
+        const row = hEl('div', 'tt-row');
+        const name = hEl('span', 'tt-name');
+        name.appendChild(hDot(i));
+        name.appendChild(document.createTextNode(c.name));
+        row.appendChild(name);
+        row.appendChild(hEl('span', 'tt-val', vals[si].toFixed(2)));
+        tip.appendChild(row);
+      });
+      const sum = hEl('div', 'tt-row tt-total');
+      sum.appendChild(hEl('span', '', 'Total'));
+      sum.appendChild(hEl('span', 'tt-val', total.toFixed(2)));
+      tip.appendChild(sum);
+      tip.style.display = 'block';
+      const w = tip.offsetWidth;
+      const left = ev.clientX + 16 + w > window.innerWidth ? ev.clientX - w - 16 : ev.clientX + 16;
+      tip.style.left = `${left}px`;
+      tip.style.top = `${ev.clientY + 12}px`;
+    }
+
+    function hideHoursTip() {
+      document.getElementById('hours-tooltip').style.display = 'none';
+    }
+
+    function renderHoursEvents(data) {
+      const wrap = document.getElementById('hours-events');
+      wrap.replaceChildren();
+      data.calendars.forEach((c, i) => {
+        const det = hEl('details', 'hours-details');
+        const sum = hEl('summary');
+        sum.appendChild(hDot(i));
+        sum.appendChild(hEl('span', '', c.name));
+        sum.appendChild(hEl('span', 'sum-meta', c.error ? 'error' : `${c.event_count} events - ${c.hours.toFixed(2)} h`));
+        det.appendChild(sum);
+
+        if (c.error) {
+          det.appendChild(hEl('div', 'hours-events-empty hours-error', c.error));
+        } else if (c.events.length === 0) {
+          det.appendChild(hEl('div', 'hours-events-empty', 'No busy events in this range.'));
+        } else {
+          const table = hEl('table', 'data-table');
+          const head = hEl('tr');
+          ['Date', 'Time', 'Title', 'Hours'].forEach((h, hi) => {
+            const th = hEl('th', '', h);
+            if (hi === 3) th.style.textAlign = 'right';
+            head.appendChild(th);
+          });
+          table.appendChild(hEl('thead')).appendChild(head);
+          const body = hEl('tbody');
+          c.events.slice().sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start)).forEach(e => {
+            const tr = hEl('tr');
+            tr.appendChild(hEl('td', '', hDate(e.date, { weekday: 'short', month: 'short', day: 'numeric' })));
+            tr.appendChild(hEl('td', '', `${e.start} - ${e.end}`));
+            tr.appendChild(hEl('td', '', e.title));
+            const hrs = hEl('td', '', (e.minutes / 60).toFixed(2));
+            hrs.style.textAlign = 'right';
+            tr.appendChild(hrs);
+            body.appendChild(tr);
+          });
+          table.appendChild(body);
+          det.appendChild(table);
+        }
+        wrap.appendChild(det);
+      });
+    }
+
+    document.querySelectorAll('#hours-range-group .seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setHoursRange(btn.dataset.range);
+        if (btn.dataset.range !== 'custom') loadHours();
+      });
+    });
+    document.getElementById('btn-calc-hours').addEventListener('click', loadHours);
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));

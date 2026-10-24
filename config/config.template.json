@@ -8,5 +8,10 @@
   "NOTIFICATION_EMAIL": "your_email@example.com",
   "APP_HOST": "https://dev.example.com",
   "USERNAME": "StephenG753",
-  "OAUTH_FILE": "StephenG753-OAuth.json"
+  "OAUTH_FILE": "StephenG753-OAuth.json",
+  "HOURS_CALENDARS": [
+    {"name": "PWL", "calendar_id": "your_pwl_calendar_id"},
+    {"name": "TIP", "calendar_id": "your_tip_calendar_id"},
+    {"name": "GuidantMSO", "calendar_id": "your_guidantmso_calendar_id"}
+  ]
 }

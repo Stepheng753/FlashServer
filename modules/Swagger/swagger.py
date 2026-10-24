@@ -937,6 +937,34 @@ OPENAPI_SPEC = {
                 }
             }
         },
+        "/api/invoices/hours": {
+            "get": {
+                "tags": ["Invoices"],
+                "summary": "Calculate Calendar Hours",
+                "description": "Sums busy-event hours per calendar listed in HOURS_CALENDARS (config/config.json), read through the main Google account.",
+                "parameters": [
+                    {"name": "range", "in": "query", "schema": {"type": "string", "enum": ["week", "month", "last_month", "year", "custom"], "default": "month"}},
+                    {"name": "start", "in": "query", "schema": {"type": "string", "format": "date"}, "description": "Required when range=custom."},
+                    {"name": "end", "in": "query", "schema": {"type": "string", "format": "date"}, "description": "Inclusive; required when range=custom."}
+                ],
+                "responses": {
+                    "200": {"description": "Per-calendar hours, event_count, events (date, start, end, title, minutes), optional per-calendar error, and total_hours."},
+                    "400": {"description": "Unknown range or invalid custom dates."},
+                    "401": {"description": "Google is not authorized."}
+                }
+            }
+        },
+        "/api/invoices/hours/calendars": {
+            "get": {
+                "tags": ["Invoices"],
+                "summary": "List Google Calendars",
+                "description": "Lists calendars visible to the main Google account (id, name, access role) for filling HOURS_CALENDARS.",
+                "responses": {
+                    "200": {"description": "Array of calendars."},
+                    "401": {"description": "Google is not authorized."}
+                }
+            }
+        },
         "/api/invoices/senders": {
             "get": {
                 "tags": ["Invoices"],

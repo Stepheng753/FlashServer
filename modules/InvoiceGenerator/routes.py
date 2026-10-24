@@ -33,6 +33,7 @@ from .db import (
     get_recurring_presets
 )
 from .pdf import generate_invoice_pdf
+from .calendar_hours import calculate_hours, list_calendars, CalendarAuthError, RANGE_KEYS
 
 invoice_bp = Blueprint('invoices', __name__, template_folder='.')
 
@@ -95,6 +96,34 @@ def api_get_next_number():
     """Returns the next auto-incremented invoice number for the current year."""
     next_num = generate_next_invoice_number()
     return jsonify({"next_number": next_num})
+
+
+# ---------------------------------------------------------------------------
+# CALC HOURS (Google Calendar API)
+# ---------------------------------------------------------------------------
+
+@invoice_bp.route("/api/invoices/hours", methods=["GET"])
+def api_get_hours():
+    """Sums busy-event hours per configured calendar for a range (week|month|last_month|year|custom)."""
+    range_key = request.args.get("range", "month")
+    if range_key not in RANGE_KEYS:
+        return jsonify({"error": f"range must be one of {', '.join(RANGE_KEYS)}"}), 400
+    try:
+        result = calculate_hours(range_key, request.args.get("start"), request.args.get("end"))
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except CalendarAuthError as e:
+        return jsonify({"error": str(e)}), 401
+    return jsonify(result)
+
+
+@invoice_bp.route("/api/invoices/hours/calendars", methods=["GET"])
+def api_list_hours_calendars():
+    """Lists calendars visible to the main Google account, to copy IDs into HOURS_CALENDARS."""
+    try:
+        return jsonify(list_calendars())
+    except CalendarAuthError as e:
+        return jsonify({"error": str(e)}), 401
 
 
 # ---------------------------------------------------------------------------

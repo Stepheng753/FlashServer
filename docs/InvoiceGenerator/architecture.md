@@ -8,7 +8,8 @@ Source: [modules/InvoiceGenerator/](../../modules/InvoiceGenerator/). Overview, 
 | `db.py` | Schema, migrations, senders, clients, presets, invoices, summaries, recurring generation. |
 | `pdf.py` | `generate_invoice_pdf(invoice)`: ReportLab Platypus, returns a `BytesIO`. |
 | `routes.py` | `invoice_bp` blueprint, registered at `/` and under `/InvoiceGenerator`. |
-| `invoices.html` | Three-tab dashboard (Builder, History, Senders & Clients). |
+| `calendar_hours.py` | Calc Hours: reads calendars listed in `HOURS_CALENDARS` (`config.json`) through the main Google account and sums busy-event hours for a range. |
+| `invoices.html` | Five-tab dashboard (History, Builder, Presets & Recurring, Clients & Senders, Calc Hours). |
 | `invoice_print.html` | Print-ready preview at `/invoices/<id>/preview`. |
 
 ---

@@ -34,6 +34,8 @@ All endpoints require HTTP Basic Authentication.
 | :--- | :--- | :--- |
 | `GET /api/invoices/summary` | `GET` | Aggregated metrics (`total_invoiced`, `outstanding`, `paid`, `total_clients`) dynamically filtered by query params (`status`, `client_id`, `sender_id`, `search`, `start_date`, `end_date`). |
 | `GET /api/invoices/next-number` | `GET` | Computes the next sequential invoice number for the current year (`INV-YYYY-001`). |
+| `GET /api/invoices/hours/calendars` | `GET` | Lists calendars visible to the main Google account (`id`, `name`, `access`) for filling `HOURS_CALENDARS`. |
+| `GET /api/invoices/hours` | `GET` | Calc Hours: busy-event hours per calendar for `range` = `week`, `month`, `last_month`, `year` or `custom` (`start` and `end` dates, inclusive). |
 | `GET /api/invoices` | `GET` | Lists invoices matching active filters with pagination support. |
 | `POST /api/invoices` | `POST` | Creates a new invoice with itemized line items, calculating subtotal, discount, tax, and total. |
 | `GET /api/invoices/<id>` | `GET` | Returns full invoice details including snapshots and line items. |
@@ -142,19 +144,44 @@ The SQLite database (`data/invoices.db`) comprises 5 relational tables:
 
 ---
 
+## 4b. Calc Hours (Google Calendar)
+
+The **Calc Hours** tab totals hours across calendars shared to the main Google account (the one authorized at `/login_oauth`). It reuses the TutoringCalculator OAuth token and its existing `calendar.readonly` scope, so there is nothing new to authorize.
+
+1. Open `/api/invoices/hours/calendars` to see every calendar the account can read, with its `id`.
+2. Add the ones to count to `config/config.json` (gitignored; see `config.template.json`):
+
+```json
+"HOURS_CALENDARS": [
+  {"name": "PWL", "calendar_id": "stephen.giang@privatewealthlawinc.com"},
+  {"name": "TIP", "calendar_id": "..."},
+  {"name": "GuidantMSO", "calendar_id": "..."}
+]
+```
+
+- **Counted:** busy events only. Events titled "Tentative" (how busy-only shares show them), tentative or cancelled status, free events and all-day events are skipped. Overlapping events are summed, not merged. Events are clipped to the range, and recurring events arrive already expanded.
+- **Ranges:** current week (Monday start), current month, last month, this year, or custom dates. Times use America/Los_Angeles.
+- **Busy-only shares:** the API still returns start and end times with generic titles, which is enough to total hours.
+- **Layout:** range buttons, a total card plus one card per calendar (hours, event count, share of total), a stacked hours-per-day chart (per month for ranges over 62 days) with hover details, and an expandable event list per calendar.
+- **Auth:** if the token is missing or revoked, the endpoints return 401. Sign in again at `/login_oauth`.
+
+---
+
 ## 5. Package Structure
 
 ```
 InvoiceGenerator/
 ├── __init__.py                # Blueprint export (invoice_bp)
+├── calendar_hours.py          # Calc Hours: Google Calendar fetch, range math, busy-hour totals
 ├── db.py                      # SQLite WAL database operations & migrations
 ├── pdf.py                     # ReportLab Platypus vector PDF generator
 ├── routes.py                  # Web & REST API endpoints
-│   ├── invoices.html          # Main responsive 3-tab HTML dashboard
+│   ├── invoices.html          # Main responsive 5-tab HTML dashboard
 │   └── invoice_print.html     # Print-ready HTML preview page
 ├── tests/
 │   ├── __init__.py            # Test package marker
 │   ├── test_invoices.py       # Unit tests for CRUD, DB, and vector PDF bytes
+│   ├── test_calendar_hours.py # Calc Hours filtering, ranges, and endpoints (Google API mocked)
 │   ├── test_integration.py    # Flask route integration & OpenAPI validation
 │   └── test_invoice_isolated.py # Calculations, filters, recurring schedules, and every route (temp DB)
 ├── logs/                      # Directory for cron execution logs
